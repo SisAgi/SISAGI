@@ -1,0 +1,40 @@
+package com.agibank.SISAGI1.Cliente.Controller;
+
+import com.agibank.SISAGI1.Cliente.DTOs.ClienteResponse;
+import com.agibank.SISAGI1.Cliente.DTOs.ClienteUpdateRequest;
+import com.agibank.SISAGI1.Cliente.Service.ClienteService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/clientes")
+@RequiredArgsConstructor
+public class ClienteController {
+
+    private final ClienteService clienteService;
+
+    @GetMapping
+    public ResponseEntity<List<ClienteResponse>> getAllClientes() {
+        return ResponseEntity.ok(clienteService.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ClienteResponse> getClienteById(@PathVariable Long id) {
+        return ResponseEntity.ok(clienteService.buscarPorId(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ClienteResponse> updateCliente(@PathVariable Long id, @RequestBody ClienteUpdateRequest request) {
+        return ResponseEntity.ok(clienteService.atualizar(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCliente(@PathVariable Long id) {
+        clienteService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+}
