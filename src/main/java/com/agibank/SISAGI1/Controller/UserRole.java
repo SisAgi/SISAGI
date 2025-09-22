@@ -1,4 +1,4 @@
-package com.agibank.SISAGI1.Conta.Entity;
+package com.agibank.SISAGI1.Controller;
 
 public enum UserRole {
     CLIENTE("ROLE_CLIENTE"),

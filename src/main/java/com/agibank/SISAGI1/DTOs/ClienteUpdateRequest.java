@@ -1,4 +1,4 @@
-package com.agibank.SISAGI1.Cliente.DTOs;
+package com.agibank.SISAGI1.DTOs;
 
 public record ClienteUpdateRequest(String nome, String email) {
 }

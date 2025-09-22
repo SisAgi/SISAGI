@@ -1,10 +1,8 @@
-package com.agibank.SISAGI1.Conta.Entity;
+package com.agibank.SISAGI1.Controller;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Collection;
-import java.util.Collections;
 
 @Getter
 @Setter
