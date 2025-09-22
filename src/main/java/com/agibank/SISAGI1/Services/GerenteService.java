@@ -1,9 +1,9 @@
-package com.agibank.SISAGI1.Gerente.Service;
+package com.agibank.SISAGI1.Services;
 
-import com.agibank.SISAGI1.Gerente.DTOs.GerenteRequest;
-import com.agibank.SISAGI1.Gerente.DTOs.GerenteResponse;
-import com.agibank.SISAGI1.Gerente.Entity.Gerente;
-import com.agibank.SISAGI1.Gerente.Repository.GerenteRepository;
+import com.agibank.SISAGI1.DTOs.GerenteRequest;
+import com.agibank.SISAGI1.DTOs.GerenteResponse;
+import com.agibank.SISAGI1.Entities.Gerente;
+import com.agibank.SISAGI1.Repositories.GerenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

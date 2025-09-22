@@ -1,6 +1,6 @@
-package com.agibank.SISAGI1.Cliente.Repository;
+package com.agibank.SISAGI1.Repositories;
 
-import com.agibank.SISAGI1.Cliente.Entity.Cliente;
+import com.agibank.SISAGI1.Entities.Cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

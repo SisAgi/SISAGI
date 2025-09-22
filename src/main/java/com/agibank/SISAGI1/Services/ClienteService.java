@@ -1,13 +1,13 @@
-package com.agibank.SISAGI1.Cliente.Service;
+package com.agibank.SISAGI1.Services;
 
-import com.agibank.SISAGI1.Cliente.DTOs.ClienteRequest;
-import com.agibank.SISAGI1.Cliente.DTOs.ClienteResponse;
-import com.agibank.SISAGI1.Cliente.DTOs.ClienteUpdateRequest;
-import com.agibank.SISAGI1.Cliente.Entity.Cliente;
-import com.agibank.SISAGI1.Gerente.Entity.Gerente;
-import com.agibank.SISAGI1.Conta.Entity.UserRole;
-import com.agibank.SISAGI1.Cliente.Repository.ClienteRepository;
-import com.agibank.SISAGI1.Gerente.Repository.GerenteRepository;
+import com.agibank.SISAGI1.DTOs.ClienteRequest;
+import com.agibank.SISAGI1.DTOs.ClienteResponse;
+import com.agibank.SISAGI1.DTOs.ClienteUpdateRequest;
+import com.agibank.SISAGI1.Entities.Cliente;
+import com.agibank.SISAGI1.Entities.Gerente;
+import com.agibank.SISAGI1.Controller.UserRole;
+import com.agibank.SISAGI1.Repositories.ClienteRepository;
+import com.agibank.SISAGI1.Repositories.GerenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;

@@ -1,6 +1,6 @@
-package com.agibank.SISAGI1.Gerente.Repository;
+package com.agibank.SISAGI1.Repositories;
 
-import com.agibank.SISAGI1.Gerente.Entity.Gerente;
+import com.agibank.SISAGI1.Entities.Gerente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

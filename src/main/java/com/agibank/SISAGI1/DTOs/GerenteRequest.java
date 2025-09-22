@@ -1,4 +1,4 @@
-package com.agibank.SISAGI1.Gerente.DTOs;
+package com.agibank.SISAGI1.DTOs;
 
 public record GerenteRequest(String nome,
                              String senha,
