@@ -15,4 +15,7 @@ public class Cliente extends Usuarios {
     @JoinColumn(name = "gerente_id")
     private Gerente gerente;
 
+    @Embedded
+    private Telefone telefone;
+
 }
