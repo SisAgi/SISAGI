@@ -1,12 +1,11 @@
-package com.agibank.SISAGI1.Controller;
+package com.agibank.sisagi.controller;
 
-import com.agibank.SISAGI1.DTOs.ClienteResponse;
-import com.agibank.SISAGI1.DTOs.ClienteUpdateRequest;
-import com.agibank.SISAGI1.Services.ClienteService;
+import com.agibank.sisagi.dto.ClienteResponse;
+import com.agibank.sisagi.dto.ClienteUpdateRequest;
+import com.agibank.sisagi.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 

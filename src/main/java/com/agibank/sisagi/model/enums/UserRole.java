@@ -1,4 +1,4 @@
-package com.agibank.SISAGI1.Controller;
+package com.agibank.sisagi.model.enums;
 
 public enum UserRole {
     CLIENTE("ROLE_CLIENTE"),
@@ -9,6 +9,7 @@ public enum UserRole {
     UserRole(String role) {
         this.role = role;
     }
+
     public String getRole() {
         return role;
     }

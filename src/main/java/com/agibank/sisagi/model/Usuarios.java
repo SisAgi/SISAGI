@@ -1,5 +1,6 @@
-package com.agibank.SISAGI1.Controller;
+package com.agibank.sisagi.model;
 
+import com.agibank.sisagi.model.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

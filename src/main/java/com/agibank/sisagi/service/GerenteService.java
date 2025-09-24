@@ -1,9 +1,9 @@
-package com.agibank.SISAGI1.Services;
+package com.agibank.sisagi.service;
 
-import com.agibank.SISAGI1.DTOs.GerenteRequest;
-import com.agibank.SISAGI1.DTOs.GerenteResponse;
-import com.agibank.SISAGI1.Entities.Gerente;
-import com.agibank.SISAGI1.Repositories.GerenteRepository;
+import com.agibank.sisagi.dto.GerenteRequest;
+import com.agibank.sisagi.dto.GerenteResponse;
+import com.agibank.sisagi.model.Gerente;
+import com.agibank.sisagi.repository.GerenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,8 +57,7 @@ public class GerenteService {
     @Transactional
     public GerenteResponse atualizarGerente(Long id, GerenteRequest request) {
         Gerente gerenteExistente = gerenteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException ("Gerente não encontrado com o ID: " + id));
-
+                .orElseThrow(() -> new IllegalArgumentException("Gerente não encontrado com o ID: " + id));
         gerenteExistente.setNome(request.nome());
         gerenteExistente.setEmail(request.email());
         gerenteExistente.setMatricula(request.matricula());

@@ -1,8 +1,8 @@
-package com.agibank.SISAGI1.Controller;
+package com.agibank.sisagi.controller;
 
-import com.agibank.SISAGI1.DTOs.GerenteRequest;
-import com.agibank.SISAGI1.DTOs.GerenteResponse;
-import com.agibank.SISAGI1.Services.GerenteService;
+import com.agibank.sisagi.dto.GerenteRequest;
+import com.agibank.sisagi.dto.GerenteResponse;
+import com.agibank.sisagi.service.GerenteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

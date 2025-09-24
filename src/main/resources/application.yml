@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: SISAGI1
+    name: sisagi
 
   datasource:
     url: jdbc:mysql://mysql-1b44538e-teste12-0c75.i.aivencloud.com:14216/defaultdb

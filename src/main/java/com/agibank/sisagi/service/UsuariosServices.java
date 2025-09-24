@@ -1,15 +1,13 @@
-package com.agibank.SISAGI1.Conta.Service;
+package com.agibank.sisagi.service;
 
-import com.agibank.SISAGI1.Repositories.ClienteRepository;
-import com.agibank.SISAGI1.Repositories.GerenteRepository;
+import com.agibank.sisagi.repository.ClienteRepository;
+import com.agibank.sisagi.repository.GerenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UsuariosServices{
+public class UsuariosServices {
     private final ClienteRepository clienteRepository;
     private final GerenteRepository gerenteRepository;
-
-
 }

@@ -1,13 +1,13 @@
-package com.agibank.SISAGI1.Services;
+package com.agibank.sisagi.service;
 
-import com.agibank.SISAGI1.DTOs.ClienteRequest;
-import com.agibank.SISAGI1.DTOs.ClienteResponse;
-import com.agibank.SISAGI1.DTOs.ClienteUpdateRequest;
-import com.agibank.SISAGI1.Entities.Cliente;
-import com.agibank.SISAGI1.Entities.Gerente;
-import com.agibank.SISAGI1.Controller.UserRole;
-import com.agibank.SISAGI1.Repositories.ClienteRepository;
-import com.agibank.SISAGI1.Repositories.GerenteRepository;
+import com.agibank.sisagi.dto.ClienteRequest;
+import com.agibank.sisagi.dto.ClienteResponse;
+import com.agibank.sisagi.dto.ClienteUpdateRequest;
+import com.agibank.sisagi.model.Cliente;
+import com.agibank.sisagi.model.Gerente;
+import com.agibank.sisagi.model.enums.UserRole;
+import com.agibank.sisagi.repository.ClienteRepository;
+import com.agibank.sisagi.repository.GerenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
@@ -34,17 +34,20 @@ public class ClienteService {
         if (request.gerenteId() != null) {
             Gerente gerenteAssociado = gerenteRepository.findById(request.gerenteId())
                     .orElseThrow(() -> new IllegalArgumentException("Gerente não encontrado"));
-            cliente.setGerente(gerenteAssociado);;
+            cliente.setGerente(gerenteAssociado);
+            ;
         }
         clienteRepository.save(cliente);
         return mapToClienteResponse(cliente);
     }
+
     @Transactional(readOnly = true)
     public ClienteResponse buscarPorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         return mapToClienteResponse(cliente);
     }
+
     @Transactional(readOnly = true)
     public List<ClienteResponse> listarTodos() {
         List<Cliente> clientes = clienteRepository.findAll();
@@ -52,6 +55,7 @@ public class ClienteService {
                 .map(this::mapToClienteResponse)
                 .toList();
     }
+
     @Transactional(readOnly = true)
     public ClienteResponse atualizar(Long id, ClienteUpdateRequest request) {
         Cliente clienteExistente = clienteRepository.findById(id)
@@ -61,13 +65,15 @@ public class ClienteService {
         Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
         return mapToClienteResponse(clienteAtualizado);
     }
-@Transactional
+
+    @Transactional
     public void deletar(Long id) {
         if (!clienteRepository.existsById(id)) {
             throw new IllegalArgumentException("Cliente não encontrado");
         }
         clienteRepository.deleteById(id);
     }
+
     private ClienteResponse mapToClienteResponse(Cliente cliente) {
         return new ClienteResponse(cliente.getId(), cliente.getNome(), cliente.getEmail(), cliente.getCpf());
     }

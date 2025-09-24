@@ -1,6 +1,5 @@
-package com.agibank.SISAGI1.Entities;
+package com.agibank.sisagi.model;
 
-import com.agibank.SISAGI1.Controller.Usuarios;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

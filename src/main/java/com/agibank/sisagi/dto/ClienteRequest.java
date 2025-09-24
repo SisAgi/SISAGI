@@ -1,4 +1,4 @@
-package com.agibank.SISAGI1.DTOs;
+package com.agibank.sisagi.dto;
 
 public record ClienteRequest(String nome,
                              String senha,

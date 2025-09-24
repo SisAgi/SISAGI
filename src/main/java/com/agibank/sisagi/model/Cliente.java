@@ -1,5 +1,5 @@
-package com.agibank.SISAGI1.Entities;
-import com.agibank.SISAGI1.Controller.Usuarios;
+package com.agibank.sisagi.model;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
