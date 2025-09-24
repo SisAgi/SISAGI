@@ -29,6 +29,7 @@ public class ClienteService {
         cliente.setNome(request.nome());
         cliente.setEmail(request.email());
         cliente.setSenha(request.senha());
+        cliente.setCpf(request.cpf());
         cliente.setRole(UserRole.CLIENTE);
 
         if (request.gerenteId() != null) {

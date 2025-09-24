@@ -1,5 +1,6 @@
 package com.agibank.sisagi.controller;
 
+import com.agibank.sisagi.dto.ClienteRequest;
 import com.agibank.sisagi.dto.ClienteResponse;
 import com.agibank.sisagi.dto.ClienteUpdateRequest;
 import com.agibank.sisagi.service.ClienteService;
@@ -15,6 +16,11 @@ import java.util.List;
 public class ClienteController {
 
     private final ClienteService clienteService;
+
+    @PostMapping
+    public ResponseEntity<ClienteResponse> criarCliente(@RequestBody ClienteRequest request) {
+        return ResponseEntity.ok(clienteService.criar(request));
+    }
 
     @GetMapping
     public ResponseEntity<List<ClienteResponse>> getAllClientes() {
