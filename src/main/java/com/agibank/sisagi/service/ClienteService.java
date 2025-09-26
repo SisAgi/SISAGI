@@ -4,7 +4,9 @@ import com.agibank.sisagi.dto.ClienteRequest;
 import com.agibank.sisagi.dto.ClienteResponse;
 import com.agibank.sisagi.dto.ClienteUpdateRequest;
 import com.agibank.sisagi.model.Cliente;
+import com.agibank.sisagi.model.Endereco;
 import com.agibank.sisagi.model.Gerente;
+import com.agibank.sisagi.model.Telefone;
 import com.agibank.sisagi.model.enums.UserRole;
 import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.GerenteRepository;
@@ -32,11 +34,29 @@ public class ClienteService {
         cliente.setCpf(request.cpf());
         cliente.setRole(UserRole.CLIENTE);
 
+        Endereco endereco = new Endereco();
+        endereco.setCep(request.cep());
+        endereco.setLogradouro(request.logradouro());
+        endereco.setComplemento(request.complemento());
+        endereco.setCidade(request.cidade());
+        endereco.setEstado(request.uf());
+        endereco.setTipoEndereco(request.tipoEndereco());
+        endereco.setNumero(request.numero());
+        endereco.setCliente(cliente);
+        cliente.getEnderecos().add(endereco);
+
+        Telefone telefone = new Telefone();
+        telefone.setDdi(request.ddi());
+        telefone.setDdd(request.ddd());
+        telefone.setTipoTelefone(request.tipoTelefone());
+        telefone.setNumero(request.numeroTelefone());
+        cliente.setTelefone(telefone);
+
+
         if (request.gerenteId() != null) {
             Gerente gerenteAssociado = gerenteRepository.findById(request.gerenteId())
                     .orElseThrow(() -> new IllegalArgumentException("Gerente não encontrado"));
             cliente.setGerente(gerenteAssociado);
-            ;
         }
         clienteRepository.save(cliente);
         return mapToClienteResponse(cliente);
@@ -57,7 +77,7 @@ public class ClienteService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ClienteResponse atualizar(Long id, ClienteUpdateRequest request) {
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));

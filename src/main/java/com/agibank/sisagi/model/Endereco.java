@@ -1,6 +1,7 @@
 package com.agibank.sisagi.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,5 +40,4 @@ public class Endereco {
     
     @Column(name = "tipo_endereco", nullable = false, length = 50)
     private String tipoEndereco;
-    
 }
