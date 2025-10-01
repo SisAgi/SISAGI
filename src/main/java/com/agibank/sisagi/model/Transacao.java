@@ -33,8 +33,9 @@ public class Transacao {
     @Column(name = "data_hora", nullable = false)
     private LocalDateTime dataHora;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @Column(name = "id_gerente_executor", nullable = false)
-    private Long idGerenteExecutor;
+    private Gerente idGerenteExecutor;
 
     @Column(name = "motivo_movimentacao", columnDefinition = "TEXT")
     private String motivoMovimentacao;
