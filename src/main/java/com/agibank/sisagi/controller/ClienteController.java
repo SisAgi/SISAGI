@@ -4,6 +4,7 @@ import com.agibank.sisagi.dto.ClienteRequest;
 import com.agibank.sisagi.dto.ClienteResponse;
 import com.agibank.sisagi.dto.ClienteUpdateRequest;
 import com.agibank.sisagi.service.ClienteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class ClienteController {
     private final ClienteService clienteService;
 
     @PostMapping
-    public ResponseEntity<ClienteResponse> criarCliente(@RequestBody ClienteRequest request) {
+    public ResponseEntity<ClienteResponse> criarCliente(@Valid @RequestBody ClienteRequest request) {
         return ResponseEntity.ok(clienteService.criar(request));
     }
 
