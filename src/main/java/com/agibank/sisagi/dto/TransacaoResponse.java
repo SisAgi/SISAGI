@@ -6,19 +6,20 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record TransacaoResponse(
+        // Campos obrigatórios conforme critérios de aceite
         Long id,
-        String nsUnico,
-        TipoTransacao tipoTransacao,
+        TipoTransacao tipo,
         BigDecimal valor,
         LocalDateTime dataHora,
-        Long contaId,
-        String numeroConta,
-        Long gerenteExecutorId,
-        String nomeGerenteExecutor,
-        String motivoMovimentacao,
+        
+        // Campos adicionais para enriquecer a resposta
+        String nsUnico,
         Long contaOrigemId,
         String numeroContaOrigem,
         Long contaDestinoId,
-        String numeroContaDestino
+        String numeroContaDestino,
+        Long gerenteExecutorId,
+        String nomeGerenteExecutor,
+        String motivoMovimentacao
 ) {}
 

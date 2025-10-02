@@ -7,24 +7,21 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record TransacaoRequest(
-        @NotNull(message = "O tipo de transação é obrigatório")
-        TipoTransacao tipoTransacao,
+        @NotNull(message = "O ID da conta de origem é obrigatório")
+        Long contaOrigemId,
+        
+        @NotNull(message = "O ID da conta de destino é obrigatório")
+        Long contaDestinoId,
         
         @NotNull(message = "O valor é obrigatório")
         @Positive(message = "O valor deve ser positivo")
         BigDecimal valor,
         
-        @NotNull(message = "O ID da conta é obrigatório")
-        Long contaId,
+        // Campos adicionais para enriquecer a funcionalidade
+        TipoTransacao tipoTransacao,
         
-        @NotNull(message = "O ID do gerente executor é obrigatório")
         Long gerenteExecutorId,
         
-        String motivoMovimentacao,
-        
-        // Para transferências
-        Long contaOrigemId,
-        
-        Long contaDestinoId
+        String motivoMovimentacao
 ) {}
 
