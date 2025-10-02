@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -68,10 +69,9 @@ public class GlobalExceptionHandler {
                                                                 HttpServletRequest request)
     {
 
-        String erros = ex.getBindingResult().getFieldErrors().stream()
-                .map(err -> err.getField() + ": "+ err.getDefaultMessage())
-                .reduce((a, b) -> a + "; \n" + b)
-                .orElse("Validação falhou");
+        List<String> erros = ex.getBindingResult().getFieldErrors().stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .toList();
 
         ErrorResponse error = new ErrorResponse(erros,
                 HttpStatus.UNPROCESSABLE_ENTITY.value(),
