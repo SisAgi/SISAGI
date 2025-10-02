@@ -1,4 +1,4 @@
-# SisAgi - Simulador de Sistema Bancário 🏦
+# SisAgi - Simulador de Sistema Bancário 
 
 Um sistema de back-end robusto para simulação bancária, permitindo o gerenciamento completo de clientes, gerentes, contas diversificadas (incluindo contas globais com conversão de moedas) e transações financeiras. Este projeto foi desenvolvido como uma aplicação monolítica bem estruturada utilizando as melhores práticas do ecossistema Spring.
 
@@ -337,44 +337,6 @@ O projeto possui estrutura preparada para testes:
 
 ---
 
-## 📝 Próximos Passos
-
-- [ ] Implementar controllers e services para Contas
-- [ ] Implementar controllers e services para Transações
-- [ ] Adicionar testes unitários e de integração
-- [ ] Implementar documentação Swagger/OpenAPI
-- [ ] Adicionar logs estruturados
-- [ ] Implementar auditoria de transações
-- [ ] Adicionar endpoints para relatórios
-- [ ] Implementar limitações de taxa (rate limiting)
-- [ ] Adicionar métricas e monitoramento (Actuator)
-
----
-
-## 🤝 Contribuindo
-
-Este é um projeto de estudo, mas sugestões e melhorias são bem-vindas!
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
----
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
-
----
-
-## 👨‍💻 Autor
-
-Desenvolvido como projeto de estudos em desenvolvimento back-end com Spring Boot.
-
----
-
 ## 📚 Referências
 
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
@@ -384,7 +346,3 @@ Desenvolvido como projeto de estudos em desenvolvimento back-end com Spring Boot
 - [ExchangeRate-API](https://www.exchangerate-api.com/)
 - [MySQL Documentation](https://dev.mysql.com/doc/)
 
----
-
-**Versão:** 0.0.1-SNAPSHOT  
-**Última atualização:** Outubro 2025
