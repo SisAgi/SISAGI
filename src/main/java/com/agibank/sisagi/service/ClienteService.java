@@ -3,6 +3,7 @@ package com.agibank.sisagi.service;
 import com.agibank.sisagi.dto.ClienteRequest;
 import com.agibank.sisagi.dto.ClienteResponse;
 import com.agibank.sisagi.dto.ClienteUpdateRequest;
+import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.model.Cliente;
 import com.agibank.sisagi.model.Endereco;
 import com.agibank.sisagi.model.Gerente;
@@ -55,7 +56,7 @@ public class ClienteService {
 
         if (request.gerenteId() != null) {
             Gerente gerenteAssociado = gerenteRepository.findById(request.gerenteId())
-                    .orElseThrow(() -> new IllegalArgumentException("Gerente não encontrado"));
+                    .orElseThrow(() -> new RecursoNaoEncontrado("Gerente não encontrado. ID: "+ request.gerenteId()));
             cliente.setGerente(gerenteAssociado);
         }
         clienteRepository.save(cliente);
@@ -65,7 +66,7 @@ public class ClienteService {
     @Transactional(readOnly = true)
     public ClienteResponse buscarPorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente digitado não encontrado. ID: "+id));
         return mapToClienteResponse(cliente);
     }
 
@@ -80,7 +81,7 @@ public class ClienteService {
     @Transactional
     public ClienteResponse atualizar(Long id, ClienteUpdateRequest request) {
         Cliente clienteExistente = clienteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente não encontrado. ID: "+id));
         clienteExistente.setNome(request.nome());
         clienteExistente.setEmail(request.email());
         Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
@@ -90,7 +91,7 @@ public class ClienteService {
     @Transactional
     public void deletar(Long id) {
         if (!clienteRepository.existsById(id)) {
-            throw new IllegalArgumentException("Cliente não encontrado");
+            throw new RecursoNaoEncontrado("ID de cliente não encontrado. ID: "+id);
         }
         clienteRepository.deleteById(id);
     }
