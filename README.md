@@ -4,47 +4,47 @@ Um sistema de back-end robusto para simulação bancária, permitindo o gerencia
 
 ---
 
-## 🎯 Sobre o Projeto
+##  Sobre o Projeto
 
 O SisAgi foi criado como um projeto de estudo para aplicar e aprofundar conhecimentos em desenvolvimento back-end com Java e Spring Boot. O objetivo é simular as funcionalidades essenciais de um sistema bancário moderno, incluindo cadastro de usuários, autenticação, gerenciamento de múltiplos tipos de contas, operações financeiras e integração com APIs externas de câmbio e CEP, tudo exposto através de uma API RESTful segura.
 
 ---
 
-## ✨ Funcionalidades
+##  Funcionalidades
 
 ### Autenticação e Autorização
--   ✅ **Sistema de Autenticação:** Registro e login com diferenciação de papéis (`CLIENTE`, `GERENTE`) usando Spring Security
--   ✅ **Controle de Acesso:** Autorização baseada em roles para endpoints específicos
+-    **Sistema de Autenticação:** Registro e login com diferenciação de papéis (`CLIENTE`, `GERENTE`) usando Spring Security
+-    **Controle de Acesso:** Autorização baseada em roles para endpoints específicos
 
 ### Gestão de Usuários
--   ✅ **CRUD de Clientes:** Operações completas de Criação, Leitura, Atualização e Deleção para clientes
--   ✅ **CRUD de Gerentes:** Operações completas de Criação, Leitura, Atualização e Deleção para gerentes
--   ✅ **Validação de CPF:** Validação customizada de CPF com constraint annotation
--   ✅ **Gestão de Telefones:** Suporte a diferentes tipos de telefone (fixo, celular, comercial)
+-    **CRUD de Clientes:** Operações completas de Criação, Leitura, Atualização e Deleção para clientes
+-    **CRUD de Gerentes:** Operações completas de Criação, Leitura, Atualização e Deleção para gerentes
+-    **Validação de CPF:** Validação customizada de CPF com constraint annotation
+-    **Gestão de Telefones:** Suporte a diferentes tipos de telefone (fixo, celular, comercial)
 
 ### Gestão de Endereços
--   ✅ **CRUD de Endereços:** Operações completas para gerenciamento de endereços de clientes
--   ✅ **Integração com ViaCEP:** Busca automática de endereço por CEP
--   ✅ **Múltiplos Endereços:** Suporte a diferentes tipos de endereço por cliente (residencial, comercial, etc.)
+-    **CRUD de Endereços:** Operações completas para gerenciamento de endereços de clientes
+-    **Integração com ViaCEP:** Busca automática de endereço por CEP
+-    **Múltiplos Endereços:** Suporte a diferentes tipos de endereço por cliente (residencial, comercial, etc.)
 
 ### Gestão de Contas Bancárias
--   ✅ **Conta Corrente:** Conta tradicional com limite de cheque especial configurável
--   ✅ **Conta Poupança:** Conta com rendimento e data de aniversário
--   ✅ **Conta Jovem:** Conta especial vinculada a um responsável, sem limite
--   ✅ **Conta Global:** Conta internacional com saldo em dólares e conversão automática para reais
--   ✅ **Cotação de Moedas:** Integração com ExchangeRate-API para conversão USD/BRL em tempo real
--   ✅ **Múltiplos Titulares:** Suporte a contas com mais de um titular
+-    **Conta Corrente:** Conta tradicional com limite de cheque especial configurável
+-    **Conta Poupança:** Conta com rendimento e data de aniversário
+-    **Conta Jovem:** Conta especial vinculada a um responsável, sem limite
+-    **Conta Global:** Conta internacional com saldo em dólares e conversão automática para reais
+-    **Cotação de Moedas:** Integração com ExchangeRate-API para conversão USD/BRL em tempo real
+-    **Múltiplos Titulares:** Suporte a contas com mais de um titular
 
 ### Transações Financeiras
--   ✅ **Sistema de Transações:** Estrutura completa para registro de operações financeiras
--   ✅ **Tipos de Transação:** Depósito, Saque, Transferência (enviada/recebida)
--   ✅ **NSU Único:** Geração automática de número sequencial único alfanumérico
--   ✅ **Rastreabilidade:** Registro de gerente executor, data/hora e motivo da movimentação
--   ✅ **DTOs Padronizados:** Request e Response para todas as operações de transação
+-    **Sistema de Transações:** Estrutura completa para registro de operações financeiras
+-    **Tipos de Transação:** Depósito, Saque, Transferência (enviada/recebida)
+-    **NSU Único:** Geração automática de número sequencial único alfanumérico
+-    **Rastreabilidade:** Registro de gerente executor, data/hora e motivo da movimentação
+-    **DTOs Padronizados:** Request e Response para todas as operações de transação
 
 ---
 
-## 🏗️ Arquitetura
+##  Arquitetura
 
 ### Estrutura de Pacotes
 ```
@@ -87,7 +87,7 @@ Usuarios (Abstrata)
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+##  Tecnologias Utilizadas
 
 ### Core
 -   **Linguagem:** Java 21
@@ -121,7 +121,7 @@ Usuarios (Abstrata)
 
 ---
 
-## 🚀 Como Rodar o Projeto
+##  Como Rodar o Projeto
 
 ### Pré-requisitos
 
@@ -180,7 +180,7 @@ Usuarios (Abstrata)
 
 ---
 
-## 📖 Endpoints da API
+##  Endpoints da API
 
 A API está organizada por recursos e versões. Todos os endpoints, exceto `/auth/**`, requerem autenticação.
 
@@ -239,10 +239,10 @@ http://localhost:8080
 *Endpoints em desenvolvimento*
 
 Operações disponíveis:
-- ✅ **DEPOSITO:** Entrada de valores na conta
-- ✅ **SAQUE:** Retirada de valores da conta
-- ✅ **TRANSFERENCIA_ENVIADA:** Transferência para outra conta
-- ✅ **TRANSFERENCIA_RECEBIDA:** Recebimento de transferência
+-  **DEPOSITO:** Entrada de valores na conta
+-  **SAQUE:** Retirada de valores da conta
+-  **TRANSFERENCIA_ENVIADA:** Transferência para outra conta
+-  **TRANSFERENCIA_RECEBIDA:** Recebimento de transferência
 
 Cada transação possui:
 - NSU único alfanumérico (32 caracteres)
@@ -253,7 +253,7 @@ Cada transação possui:
 
 ---
 
-## 🔧 Recursos Especiais
+##  Recursos Especiais
 
 ### Validação de CPF
 O sistema possui validador customizado de CPF que pode ser usado via annotation:
@@ -273,8 +273,6 @@ A Conta Global possui integração com a ExchangeRate-API para:
 - Consultar cotação USD/BRL em tempo real
 - Converter saldo em dólares para reais automaticamente
 - Cache de cotações para melhor performance
-
-**API Key:** `6b2fcaba86114260aa3dd360e48d6a49`
 
 ### Sistema de Cache
 Cotações de câmbio são cacheadas para otimizar performance e reduzir chamadas à API externa.
@@ -301,7 +299,7 @@ Cotações de câmbio são cacheadas para otimizar performance e reduzir chamada
 
 ---
 
-## 🔐 Segurança
+##  Segurança
 
 - **Spring Security:** Autenticação e autorização
 - **Roles:** `CLIENTE`, `GERENTE`, `ADMIN`
@@ -311,7 +309,7 @@ Cotações de câmbio são cacheadas para otimizar performance e reduzir chamada
 
 ---
 
-## 📊 Modelo de Banco de Dados
+##  Modelo de Banco de Dados
 
 ### Tabelas Principais
 - `usuarios` (herança com clientes e gerentes)
@@ -328,7 +326,7 @@ Cotações de câmbio são cacheadas para otimizar performance e reduzir chamada
 
 ---
 
-## 🧪 Testes
+##  Testes
 
 O projeto possui estrutura preparada para testes:
 ```bash
@@ -337,7 +335,7 @@ O projeto possui estrutura preparada para testes:
 
 ---
 
-## 📚 Referências
+##  Referências
 
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 - [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
