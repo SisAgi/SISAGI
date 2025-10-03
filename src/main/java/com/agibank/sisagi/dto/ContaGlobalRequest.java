@@ -8,6 +8,6 @@ import java.util.List;
 public record ContaGlobalRequest(@NotBlank String numeroConta,
                                  @NotBlank String agencia,
                                  @NotBlank BigDecimal saldoDolares,
-                                 @NotBlank List<Long> clientesIds,
+                                 @NotBlank List<Long> titularIds,
                                  //Atributo específico de Conta Global
                                  @NotBlank String codigoSwift){}

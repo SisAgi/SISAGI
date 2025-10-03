@@ -40,4 +40,5 @@ public abstract class Conta {
             inverseJoinColumns = @JoinColumn(name = "cliente_id")
     )
     private Set<Cliente> titulares = new HashSet<>();
-}
+
+    }

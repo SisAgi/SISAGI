@@ -10,7 +10,7 @@ import java.util.List;
 public record ContaPoupRequest(@NotNull String numeroConta,
                                @NotNull String agencia,
                                @NotNull BigDecimal saldo,
-                               @NotNull List<Long> clientesIds,
+                               @NotNull List<Long> titularIds,
                                //Atributo específico de Conta Poupança
                                @Min(value = 1, message = "O dia minimo de aniversário deve ser 1")
                                @Max(value = 31, message = "O dia máximo de aniversário deve ser 31")
