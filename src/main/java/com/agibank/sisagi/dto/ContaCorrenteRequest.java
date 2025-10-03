@@ -9,6 +9,7 @@ import java.util.List;
 public record ContaCorrenteRequest(@NotBlank String numeroConta,
                                    @NotBlank String agencia,
                                    @NotBlank BigDecimal saldo,
-                                   @NotBlank List<Long> clientesIds,
+                                   @NotBlank List<Long> titularIds,
                                    //Atributo específico de Conta Corrente
-                                   @NotNull BigDecimal limiteChequeEspecial) {}
+                                   @NotNull BigDecimal limiteChequeEspecial) {
+    }

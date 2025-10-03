@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 
 @Entity
 @DiscriminatorValue("CORRENTE")
@@ -17,4 +18,5 @@ import java.math.BigDecimal;
 public class ContaCorrente extends Conta {
     @Column
     private BigDecimal limiteChequeEspecial;
-}
+
+    }

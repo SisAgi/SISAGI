@@ -18,7 +18,7 @@ public class ContaPoupanca extends Conta{
 
     @Column(name = "data_aniversario")
     @Builder.Default
-    private LocalDate dataAniversario = LocalDate.now();
+    private int dataAniversario = LocalDate.now().getDayOfMonth();
 
     @Column(name = "rendimento")
     @Builder.Default
