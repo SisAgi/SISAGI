@@ -3,6 +3,7 @@ package com.agibank.sisagi.service;
 import com.agibank.sisagi.dto.GerenteRequest;
 import com.agibank.sisagi.dto.GerenteResponse;
 import com.agibank.sisagi.model.Gerente;
+import com.agibank.sisagi.model.enums.UserRole;
 import com.agibank.sisagi.repository.GerenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class GerenteService {
         novoGerente.setEmail(request.email());
         novoGerente.setSenha(request.senha());
         novoGerente.setMatricula(request.matricula());
+        novoGerente.setRole(UserRole.GERENTE);
 
         Gerente gerenteSalvo = gerenteRepository.save(novoGerente);
         return mapToResponse(gerenteSalvo);

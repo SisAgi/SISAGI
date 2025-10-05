@@ -2,6 +2,7 @@ package com.agibank.sisagi.controller;
 
 import com.agibank.sisagi.dto.GerenteRequest;
 import com.agibank.sisagi.dto.GerenteResponse;
+import com.agibank.sisagi.dto.LoginRequest;
 import com.agibank.sisagi.service.GerenteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,4 +48,17 @@ public class GerenteController {
         gerenteService.deletarGerente(id);
         return ResponseEntity.noContent().build();
     }
+
+    // LOGIN
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+
+        if (request.gerenteId().equals(1L) && "123456".equals(request.senha())) {
+            return ResponseEntity.ok("Login bem-sucedido");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+    }
+
+
+
 }
