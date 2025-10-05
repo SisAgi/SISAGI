@@ -14,7 +14,7 @@ public class ContaJovem extends Conta {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "conta_responsavel_id", referencedColumnName = "id_conta", nullable = false)
-    Long responsavelId;
+    private Conta responsavelId;
 
     @Builder.Default
     private boolean possuiLimite = false; // sempre falso

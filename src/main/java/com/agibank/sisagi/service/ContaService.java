@@ -54,8 +54,8 @@ public class ContaService {
     }
     @Transactional
     public ContaJovemResponse CriarContaJovem(ContaJovemRequest request){
-        Cliente responsavel = clienteRepository.findById(request.responsavelId())
-                .orElseThrow(() -> new IllegalArgumentException("Cliente responsável não encontrado"));
+        Conta responsavel = contaRepository.findById(request.responsavelId())
+                .orElseThrow(() -> new IllegalArgumentException("Cliente responsável não encontrada"));
 
         Set<Cliente> titulares = new HashSet<>(clienteRepository.findAllById(request.titularIds()));
         if (titulares.isEmpty()){
@@ -65,7 +65,8 @@ public class ContaService {
         contaJovem.setNumeroConta(request.numeroConta());
         contaJovem.setSaldo(BigDecimal.ZERO);
         contaJovem.setAgencia(request.agencia());
-        contaJovem.setResponsavelId(request.responsavelId());
+        contaJovem.setResponsavelId(responsavel);
+        contaJovem.setTitulares(titulares);
         contaRepository.save(contaJovem);
         return maptoContaJovemResponse(contaJovem);
     }
