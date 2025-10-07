@@ -1,6 +1,7 @@
 package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.ViaCepResponse;
+import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class ViaCepService {
             ViaCepResponse response = restTemplate.getForObject(VIA_CEP_URL, ViaCepResponse.class, cepLimpo);
             
             if (response == null || response.isErro()) {
-                throw new IllegalArgumentException("CEP não encontrado: " + cep);
+                throw new RecursoNaoEncontrado("CEP não encontrado: " + cep);
             }
             
             log.info("Endereço encontrado: {} - {}", response.logradouro(), response.localidade());

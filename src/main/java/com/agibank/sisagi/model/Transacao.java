@@ -34,7 +34,7 @@ public class Transacao {
     private LocalDateTime dataHora;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "id_gerente_executor", nullable = false)
+    @JoinColumn(name = "id_gerente_executor", nullable = false)
     private Gerente idGerenteExecutor;
 
     @Column(name = "motivo_movimentacao", columnDefinition = "TEXT")

@@ -2,6 +2,7 @@ package com.agibank.sisagi.controller;
 
 import com.agibank.sisagi.dto.GerenteRequest;
 import com.agibank.sisagi.dto.GerenteResponse;
+import com.agibank.sisagi.dto.LoginRequest;
 import com.agibank.sisagi.service.GerenteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,4 +48,23 @@ public class GerenteController {
         gerenteService.deletarGerente(id);
         return ResponseEntity.noContent().build();
     }
+
+    // LOGIN
+    @PostMapping("/login")
+    public ResponseEntity<GerenteResponse> login(@RequestBody LoginRequest request) {
+        if (request.gerenteId().equals(1L) && "123456".equals(request.senha())) {
+            GerenteResponse response = new GerenteResponse(
+                    1L,
+                    "Gerente Teste",
+                    "gerente@email.com",
+                    "GER2025"
+            );
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+
+
+
 }
