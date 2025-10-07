@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,113 +36,124 @@ public class TransacaoService {
     }
 
     @Transactional
-    public TransacaoResponse processarTransacao(TransacaoRequest request, Long gerenteExecutorId) {
-        // Validação e Carregamento de Entidades
+    public TransacaoResponse realizarTransferencia(TransacaoRequest dto, Long gerenteExecutorId) {
+        // Validação básica
+        if (dto.contaOrigemId() == null || dto.contaDestinoId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transferências requerem Conta de Origem e Conta de Destino.");
+        }
+
         Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
 
-        Conta contaPrincipal = contaRepository.findById(request.contaId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta principal/destino não encontrada."));
+        Conta contaOrigem = contaRepository.findById(dto.contaOrigemId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta de origem não encontrada."));
 
-        BigDecimal valor = request.valor();
-        TipoTransacao tipo = request.tipoTransacao();
+        Conta contaDestino = contaRepository.findById(dto.contaDestinoId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta de destino não encontrada."));
 
-        // Execução da Lógica da Operação
-        if (tipo == TipoTransacao.DEPOSITO) {
-            // Depósito: Apenas credita na conta principal/destino
-            executarCredito(contaPrincipal, valor, tipo, gerente, request.motivoMovimentacao());
-        } else if (tipo == TipoTransacao.SAQUE) {
-            // Saque: Debita da conta principal/origem (Conta principal é a origem neste caso)
-            executarDebito(contaPrincipal, valor, tipo, gerente, request.motivoMovimentacao());
+        String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
 
-            // Regra de Negócio: Saques acima de R$ 10 mil requerem motivo.
-            if (valor.compareTo(BigDecimal.valueOf(10000.00)) > 0 && (request.motivoMovimentacao() == null || request.motivoMovimentacao().isBlank())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Saques acima de R$ 10.000,00 requerem o motivo da movimentação.");
-            }
-        } else if (tipo == TipoTransacao.TRANSFERENCIA_ENVIADA) {
-            // Transferência: Debita da origem e credita no destino
-            if (request.contaOrigemId() == null || request.contaDestinoId() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transferências requerem IDs de Conta Origem e Conta Destino.");
-            }
+        // Lógica de negócio: débito e crédito
+        // O metodo 'executarDebito' já valida o saldo
+        Transacao debito = executarDebito(contaOrigem, dto.valor(), TipoTransacao.TRANSFERENCIA_ENVIADA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        Transacao credito = executarCredito(contaDestino, dto.valor(), TipoTransacao.TRANSFERENCIA_RECEBIDA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
 
-            Conta contaOrigem = contaRepository.findById(request.contaOrigemId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta de origem não encontrada."));
+        // Atualiza saldos após as operações
+        contaRepository.save(contaOrigem);
+        contaRepository.save(contaDestino);
 
-            Conta contaDestino = contaRepository.findById(request.contaDestinoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta de destino não encontrada."));
-
-            // Executa o débito na origem
-            executarDebito(contaOrigem, valor, TipoTransacao.TRANSFERENCIA_ENVIADA, gerente, request.motivoMovimentacao());
-
-            // Executa o crédito no destino (cria uma segunda transação para a conta destino)
-            executarCredito(contaDestino, valor, TipoTransacao.TRANSFERENCIA_RECEBIDA, gerente, request.motivoMovimentacao());
-
-            // A transação principal retorna a enviada (débito)
-            return toResponse(transacaoRepository.findByNsUnico(contaOrigem.getTransacoes().stream().findFirst().get().getNsUnico()));
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tipo de transação não suportado ou inválido.");
-        }
-
-        // Salva as mudanças no saldo da Conta
-        contaRepository.save(contaPrincipal);
-
-        // Retorna a transação criada (para Depósito e Saque)
-        // Como a transação é criada no metodo de execução, aqui pode-se buscar a última transação
-        // da conta para retornar a resposta correta (simplificado para fins didáticos).
-        return new TransacaoResponse(null, null, tipo.getDescricao(), valor, LocalDateTime.now(), contaPrincipal.getId(), null, null, gerenteExecutorId, request.motivoMovimentacao());
+        return toResponse(debito);
     }
 
-    private Transacao executarDebito(Conta conta, BigDecimal valor, TipoTransacao tipo, Gerente gerente, String motivo) {
-        try {
-            conta.debitar(valor);
-        } catch (RuntimeException e) {
-            // Propaga erro de saldo para o Controller
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+    @Transactional
+    public TransacaoResponse realizarDeposito(TransacaoRequest dto, Long gerenteExecutorId) {
+        Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
 
-        // Cria e salva o registro de transação
-        Transacao transacao = new Transacao();
-        transacao.setConta(conta);
-        transacao.setTipoTransacao(tipo);
-        transacao.setValor(valor);
-        transacao.setIdGerenteExecutor(gerente);
-        transacao.setMotivoMovimentacao(motivo);
-        // O @PrePersist cuidará de dataHora e nsUnico
-        return transacaoRepository.save(transacao);
-    }
+        Conta conta = contaRepository.findById(dto.contaId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
 
-    private Transacao executarCredito(Conta conta, BigDecimal valor, TipoTransacao tipo, Gerente gerente, String motivo) {
-        conta.creditar(valor);
-
-        // Cria e salva o registro de transação
-        Transacao transacao = new Transacao();
-        transacao.setConta(conta);
-        transacao.setTipoTransacao(tipo);
-        transacao.setValor(valor);
-        transacao.setIdGerenteExecutor(gerente);
-        transacao.setMotivoMovimentacao(motivo);
-        // Regra de Negócio: Depósitos acima de R$ 10 mil requerem motivo.
-        if (valor.compareTo(BigDecimal.valueOf(10000.00)) > 0 && (motivo == null || motivo.isBlank())) {
+        // Lógica de negócio: Depósitos acima de R$ 10 mil requerem motivo.
+        if (dto.valor().compareTo(BigDecimal.valueOf(10000.00)) > 0 && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Depósitos em dinheiro acima de R$ 10.000,00 requerem a origem da espécie.");
         }
 
-        // O @PrePersist cuidará de dataHora e nsUnico
+        String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+        Transacao transacao = executarCredito(conta, dto.valor(), TipoTransacao.DEPOSITO, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+
+        contaRepository.save(conta);
+
+        return toResponse(transacao);
+    }
+
+    @Transactional
+    public TransacaoResponse realizarSaque(TransacaoRequest dto, Long gerenteExecutorId) {
+        Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
+
+        Conta conta = contaRepository.findById(dto.contaId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
+
+        // Lógica de negócio: Saques acima de R$ 10 mil requerem motivo.
+        if (dto.valor().compareTo(BigDecimal.valueOf(10000.00)) > 0 && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Saques acima de R$ 10.000,00 requerem o motivo da movimentação.");
+        }
+
+        String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+        Transacao transacao = executarDebito(conta, dto.valor(), TipoTransacao.SAQUE, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+
+        contaRepository.save(conta);
+
+        return toResponse(transacao);
+    }
+
+    // Métodos utilitários de débito e crédito
+    private Transacao executarDebito(Conta conta, BigDecimal valor, TipoTransacao tipo, Gerente gerente, String motivo, String nsUnico) {
+        try {
+            conta.debitar(valor);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+
+        Transacao transacao = new Transacao();
+        transacao.setConta(conta);
+        transacao.setTipoTransacao(tipo);
+        transacao.setValor(valor.negate());
+        transacao.setIdGerenteExecutor(gerente);
+        transacao.setMotivoMovimentacao(motivo);
+        transacao.setNsUnico(nsUnico);
+
+        return transacaoRepository.save(transacao);
+    }
+
+    private Transacao executarCredito(Conta conta, BigDecimal valor, TipoTransacao tipo, Gerente gerente, String motivo, String nsUnico) {
+        conta.creditar(valor);
+
+        Transacao transacao = new Transacao();
+        transacao.setConta(conta);
+        transacao.setTipoTransacao(tipo);
+        transacao.setValor(valor);
+        transacao.setIdGerenteExecutor(gerente);
+        transacao.setMotivoMovimentacao(motivo);
+        transacao.setNsUnico(nsUnico);
+
         return transacaoRepository.save(transacao);
     }
 
     public List<TransacaoResponse> buscarExtratoPorConta(Long contaId) {
+        // Busca a entidade Conta pelo ID
         Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
 
-        // No modelo real, você precisaria de um relacionamento @OneToMany na Conta para buscar as transações.
-        // Simulando a busca por ID da conta.
-        // return transacaoRepository.findByContaId(contaId).stream().map(this::toResponse).collect(Collectors.toList());
+        // Busca todas as transações relacionadas àquela conta
+        List<Transacao> transacoes = transacaoRepository.findByConta(conta);
 
-        // Retornando uma lista vazia para compilação
-        return List.of();
+        // Mapeia a lista de Transacao para uma lista de TransacaoResponse
+        return transacoes.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    // Método de Mapeamento
     private TransacaoResponse toResponse(Transacao transacao) {
         return new TransacaoResponse(
                 transacao.getId(),
@@ -150,8 +162,8 @@ public class TransacaoService {
                 transacao.getValor(),
                 transacao.getDataHora(),
                 transacao.getConta().getId(),
-                transacao.getContaOrigem() != null ? transacao.getContaOrigem().getId() : null,
-                transacao.getContaDestino() != null ? transacao.getContaDestino().getId() : null,
+                null,
+                null,
                 transacao.getIdGerenteExecutor().getId(),
                 transacao.getMotivoMovimentacao()
         );
