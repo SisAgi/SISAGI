@@ -51,13 +51,19 @@ public class GerenteController {
 
     // LOGIN
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-
+    public ResponseEntity<GerenteResponse> login(@RequestBody LoginRequest request) {
         if (request.gerenteId().equals(1L) && "123456".equals(request.senha())) {
-            return ResponseEntity.ok("Login bem-sucedido");
+            GerenteResponse response = new GerenteResponse(
+                    1L,
+                    "Gerente Teste",
+                    "gerente@email.com",
+                    "GER2025"
+            );
+            return ResponseEntity.ok(response);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
 
 
 
