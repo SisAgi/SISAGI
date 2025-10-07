@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
+    Transacao findByNsUnico(String nsUnico);
 
     List<Transacao> findByContaIdOrderByDataHoraDesc(Long contaId);
 }
