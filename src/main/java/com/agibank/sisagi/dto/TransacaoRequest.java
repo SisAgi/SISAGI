@@ -17,7 +17,6 @@ public record TransacaoRequest(
         @Positive(message = "O valor deve ser positivo")
         BigDecimal valor,
         
-        // Campos adicionais para enriquecer a funcionalidade
         TipoTransacao tipoTransacao,
         
         Long gerenteExecutorId,
