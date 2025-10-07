@@ -1,21 +1,26 @@
 package com.agibank.sisagi.dto;
 
+import com.agibank.sisagi.model.enums.TipoServico;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 public record DebitoAutomaticoRequest(
-        @NotBlank(message = "O código da empresa é obrigatório.")
-        @Size(min = 5, max = 20, message = "O código da empresa deve ter entre 5 e 20 caracteres.")
-        String codigoEmpresa,
 
-        @NotBlank(message = "O número de identificação do cliente é obrigatório.")
-        @Size(min = 5, max = 50, message = "O número de identificação do cliente deve ter entre 5 e 50 caracteres.")
-        String numeroIdentificacaoCliente,
+        @NotNull(message = "O ID da conta não pode ser nulo.")
+        Long contaId,
 
-        @NotNull(message = "O ID da conta bancária é obrigatório.")
-        Long contaBancariaId
-) {
-}
+        @NotNull(message = "O dia agendado para o débito é obrigatório.")
+        @Min(value = 1, message = "O dia agendado deve ser no mínimo 1.")
+        @Max(value = 31, message = "O dia agendado deve ser no máximo 31.")
+        Integer diaAgendado,
 
+        @NotNull(message = "O tipo de serviço é obrigatório.")
+        TipoServico tipoServico,
 
+        @NotBlank(message = "O identificador do convênio é obrigatório.")
+        String identificadorConvenio,
+
+        String descricao
+) {}
