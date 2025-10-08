@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,17 +28,35 @@ public abstract class Conta {
     @Column(name = "id_conta")
     private Long id;
 
-    @Column(name = "numero_conta", nullable = false, unique = true)
+    @Column(name = "numero_conta", nullable = false, unique = true, length = 20)
     private String numeroConta;
+
+    @Column(nullable = false, length = 255)
+    private String senha;
 
     @Column(name = "agencia", nullable = false)
     private String agencia;
 
-    @Column(name = "saldo", nullable = false)
+    @Column(name = "saldo", nullable = false, precision = 15, scale = 2)
     private BigDecimal saldo;
 
-    @Column(name = "status")
+    @Column(name = "limite_cheque_especial", precision = 15, scale = 2)
+    private BigDecimal limiteChequeEspecial;
+
+    @Column(name = "data_abertura", nullable = false)
+    private LocalDate dataAbertura;
+
+    @Column(name = "segmento_cliente", nullable = false, length = 50)
+    private String segmentoCliente;
+
+    @Column(name = "taxa_manutencao", nullable = false, precision = 10, scale = 2)
+    private BigDecimal taxaManutencao;
+
+    @Column(name = "status", nullable = false, length = 50)
     private StatusConta statusConta;
+
+    @Column(name = "rendimento_poupanca", precision = 5, scale = 2)
+    private BigDecimal rendimentoPoupanca;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

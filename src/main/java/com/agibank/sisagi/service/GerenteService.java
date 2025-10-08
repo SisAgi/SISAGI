@@ -29,7 +29,7 @@ public class GerenteService {
         }
 
         Gerente novoGerente = new Gerente();
-        novoGerente.setNome(request.nome());
+        novoGerente.setNomeCompleto(request.nome());
         novoGerente.setEmail(request.email());
         novoGerente.setSenha(request.senha());
         novoGerente.setMatricula(request.matricula());
@@ -60,7 +60,7 @@ public class GerenteService {
     public GerenteResponse atualizarGerente(Long id, GerenteRequest request) {
         Gerente gerenteExistente = gerenteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Gerente não encontrado com o ID: " + id));
-        gerenteExistente.setNome(request.nome());
+        gerenteExistente.setNomeCompleto(request.nome());
         gerenteExistente.setEmail(request.email());
         gerenteExistente.setMatricula(request.matricula());
         Gerente gerenteAtualizado = gerenteRepository.save(gerenteExistente);
@@ -79,7 +79,7 @@ public class GerenteService {
     private GerenteResponse mapToResponse(Gerente gerente) {
         return new GerenteResponse(
                 gerente.getId(),
-                gerente.getNome(),
+                gerente.getNomeCompleto(),
                 gerente.getEmail(),
                 gerente.getMatricula());
     }
