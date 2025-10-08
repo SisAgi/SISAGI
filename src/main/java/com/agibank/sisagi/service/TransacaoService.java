@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,10 +52,17 @@ public class TransacaoService {
 
         String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
 
-        // Lógica de negócio: débito e crédito
-        // O metodo 'executarDebito' já valida o saldo
+        // Cria a transação de débito e salva
         Transacao debito = executarDebito(contaOrigem, dto.valor(), TipoTransacao.TRANSFERENCIA_ENVIADA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        debito.setContaOrigem(contaOrigem);
+        debito.setContaDestino(contaDestino);
+        transacaoRepository.save(debito);
+
+        // Cria a transação de crédito e salva
         Transacao credito = executarCredito(contaDestino, dto.valor(), TipoTransacao.TRANSFERENCIA_RECEBIDA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        credito.setContaOrigem(contaOrigem);
+        credito.setContaDestino(contaDestino);
+        transacaoRepository.save(credito);
 
         // Atualiza saldos após as operações
         contaRepository.save(contaOrigem);
@@ -80,6 +86,8 @@ public class TransacaoService {
 
         String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
         Transacao transacao = executarCredito(conta, dto.valor(), TipoTransacao.DEPOSITO, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        transacao.setContaDestino(conta);
+        transacaoRepository.save(transacao);
 
         contaRepository.save(conta);
 
@@ -101,6 +109,8 @@ public class TransacaoService {
 
         String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
         Transacao transacao = executarDebito(conta, dto.valor(), TipoTransacao.SAQUE, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        transacao.setContaOrigem(conta);
+        transacaoRepository.save(transacao);
 
         contaRepository.save(conta);
 
@@ -123,7 +133,7 @@ public class TransacaoService {
         transacao.setMotivoMovimentacao(motivo);
         transacao.setNsUnico(nsUnico);
 
-        return transacaoRepository.save(transacao);
+        return transacao;
     }
 
     private Transacao executarCredito(Conta conta, BigDecimal valor, TipoTransacao tipo, Gerente gerente, String motivo, String nsUnico) {
@@ -137,34 +147,41 @@ public class TransacaoService {
         transacao.setMotivoMovimentacao(motivo);
         transacao.setNsUnico(nsUnico);
 
-        return transacaoRepository.save(transacao);
+        return transacao;
     }
 
     public List<TransacaoResponse> buscarExtratoPorConta(Long contaId) {
-        // Busca a entidade Conta pelo ID
         Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
 
-        // Busca todas as transações relacionadas àquela conta
         List<Transacao> transacoes = transacaoRepository.findByConta(conta);
 
-        // Mapeia a lista de Transacao para uma lista de TransacaoResponse
         return transacoes.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     private TransacaoResponse toResponse(Transacao transacao) {
+        Long contaOrigemId = (transacao.getContaOrigem() != null) ? transacao.getContaOrigem().getId() : null;
+        String numeroContaOrigem = (transacao.getContaOrigem() != null) ? transacao.getContaOrigem().getNumeroConta() : null;
+
+        Long contaDestinoId = (transacao.getContaDestino() != null) ? transacao.getContaDestino().getId() : null;
+        String numeroContaDestino = (transacao.getContaDestino() != null) ? transacao.getContaDestino().getNumeroConta() : null;
+
+        String nomeGerenteExecutor = (transacao.getIdGerenteExecutor() != null) ? transacao.getIdGerenteExecutor().getNome() : null;
+
         return new TransacaoResponse(
                 transacao.getId(),
-                transacao.getNsUnico(),
-                transacao.getTipoTransacao().getDescricao(),
+                transacao.getTipoTransacao(),
                 transacao.getValor(),
                 transacao.getDataHora(),
-                transacao.getConta().getId(),
-                null,
-                null,
+                transacao.getNsUnico(),
+                contaOrigemId,
+                numeroContaOrigem,
+                contaDestinoId,
+                numeroContaDestino,
                 transacao.getIdGerenteExecutor().getId(),
+                nomeGerenteExecutor,
                 transacao.getMotivoMovimentacao()
         );
     }
