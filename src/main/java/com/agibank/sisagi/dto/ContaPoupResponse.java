@@ -1,5 +1,7 @@
 package com.agibank.sisagi.dto;
 
+import com.agibank.sisagi.model.enums.StatusConta;
+
 import java.math.BigDecimal;
 import java.util.Set;
 
@@ -9,4 +11,5 @@ public record ContaPoupResponse(Long id,
                                 BigDecimal saldo,
                                 int diaAniversario,
                                 double rendimento,
-                                Set <Long> titularIds) {}
+                                Set <Long> titularIds,
+                                StatusConta statusConta) {}
