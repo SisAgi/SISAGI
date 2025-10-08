@@ -1,6 +1,7 @@
 package com.agibank.sisagi.model;
 
 import com.agibank.sisagi.exception.SaldoInsuficienteException;
+import com.agibank.sisagi.model.enums.StatusConta;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,6 +35,9 @@ public abstract class Conta {
 
     @Column(name = "saldo", nullable = false)
     private BigDecimal saldo;
+
+    @Column(name = "status")
+    private StatusConta statusConta;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
