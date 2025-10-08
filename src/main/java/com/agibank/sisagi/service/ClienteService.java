@@ -29,7 +29,7 @@ public class ClienteService {
             throw new IllegalArgumentException("Email já cadastrado");
         }
         Cliente cliente = new Cliente();
-        cliente.setNome(request.nome());
+        cliente.setNomeCompleto(request.nome());
         cliente.setEmail(request.email());
         cliente.setSenha(request.senha());
         cliente.setCpf(request.cpf());
@@ -82,7 +82,7 @@ public class ClienteService {
     public ClienteResponse atualizar(Long id, ClienteUpdateRequest request) {
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente não encontrado. ID: "+id));
-        clienteExistente.setNome(request.nome());
+        clienteExistente.setNomeCompleto(request.nome());
         clienteExistente.setEmail(request.email());
         Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
         return mapToClienteResponse(clienteAtualizado);
@@ -97,7 +97,7 @@ public class ClienteService {
     }
 
     private ClienteResponse mapToClienteResponse(Cliente cliente) {
-        return new ClienteResponse(cliente.getId(), cliente.getNome(), cliente.getEmail(), cliente.getCpf());
+        return new ClienteResponse(cliente.getId(), cliente.getNomeCompleto(), cliente.getEmail(), cliente.getCpf());
     }
 
 }
