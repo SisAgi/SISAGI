@@ -2,7 +2,10 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
+import com.agibank.sisagi.exception.SaldoInsuficienteException;
+import com.agibank.sisagi.exception.SaldoInvalido;
 import com.agibank.sisagi.model.*;
+import com.agibank.sisagi.model.enums.StatusConta;
 import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.ContaRepository;
 import jakarta.persistence.DiscriminatorValue;
@@ -74,23 +77,26 @@ public class ContaService {
     }
 
     @Transactional
-    public void deletarConta(Long id) {
-        if (!contaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Conta não encontrada");
+    public void desativarConta(Long id) {
+        Conta conta = contaRepository.findById(id)
+                .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
+        if (conta.getSaldo() != BigDecimal.valueOf(0)){
+            throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
         }
-        contaRepository.deleteById(id);
+        conta.setStatusConta(StatusConta.EXCLUIDA);
+        contaRepository.save(conta);
     }
 
     @Transactional(readOnly = true)
     public void buscarContaPorId(Long id) {
         Conta conta = contaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
     }
 
     @Transactional
     public ContaUpdateRequest atualizarConta(Long id, ContaUpdateRequest request) {
         Conta conta = contaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
         conta.setAgencia(request.agencia());
         Conta contaAtualizada = contaRepository.save(conta);
         return new ContaUpdateRequest(contaAtualizada.getAgencia(), contaAtualizada.getNumeroConta(), request.cpf());
@@ -106,8 +112,9 @@ public class ContaService {
                 conta.getAgencia(),
                 conta.getSaldo(),
                 conta.getLimiteChequeEspecial(),
-                getTipoConta(conta),
-                titularIds);
+                titularIds,
+                conta.getStatusConta(),
+                getTipoConta(conta));
     }
     public ContaPoupResponse maptoContaPoupancaResponse(ContaPoupanca conta) {
         Set<Long> titularIds = conta.getTitulares().stream()
@@ -121,7 +128,8 @@ public class ContaService {
                 conta.getDataAniversario(),
                 conta.getRendimento(),
                 getTipoConta(conta),
-                titularIds);
+                titularIds,
+                conta.getStatusConta());
     }
     public ContaJovemResponse maptoContaJovemResponse(ContaJovem conta){
         Set<Long> titularIds = conta.getTitulares().stream()
@@ -133,8 +141,9 @@ public class ContaService {
                 conta.getAgencia(),
                 conta.getSaldo(),
                 conta.getResponsavelId().getId(),
-                getTipoConta(conta),
-                titularIds);
+                titularIds,
+                conta.getStatusConta(),
+                getTipoConta(conta));
     }
     public Object buscarDetalhesConta(Long contaId) {
         Conta conta = contaRepository.findById(contaId)
