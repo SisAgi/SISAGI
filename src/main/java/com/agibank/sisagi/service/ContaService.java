@@ -1,7 +1,11 @@
 package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.exception.RecursoNaoEncontrado;
+import com.agibank.sisagi.exception.SaldoInsuficienteException;
+import com.agibank.sisagi.exception.SaldoInvalido;
 import com.agibank.sisagi.model.*;
+import com.agibank.sisagi.model.enums.StatusConta;
 import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.ContaRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +37,7 @@ public class ContaService {
         contaCorrente.setAgencia(request.agencia());
         contaCorrente.setLimiteChequeEspecial(request.limiteChequeEspecial());
         contaCorrente.setTitulares(new HashSet<>(titulares));
+        contaCorrente.setStatusConta(StatusConta.ATIVA);
         contaRepository.save(contaCorrente);
         return maptoContaCorrenteResponse(contaCorrente);
     }
@@ -49,6 +54,7 @@ public class ContaService {
         contaPoupanca.setAgencia(request.agencia());
         contaPoupanca.setRendimento(contaPoupanca.getRendimento());
         contaPoupanca.setTitulares(new HashSet<>(titulares));
+        contaPoupanca.setStatusConta(StatusConta.ATIVA);
         contaRepository.save(contaPoupanca);
         return maptoContaPoupancaResponse(contaPoupanca);
     }
@@ -67,28 +73,32 @@ public class ContaService {
         contaJovem.setAgencia(request.agencia());
         contaJovem.setResponsavelId(responsavel);
         contaJovem.setTitulares(titulares);
+        contaJovem.setStatusConta(StatusConta.ATIVA);
         contaRepository.save(contaJovem);
         return maptoContaJovemResponse(contaJovem);
     }
 
     @Transactional
-    public void deletarConta(Long id) {
-        if (!contaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Conta não encontrada");
+    public void desativarConta(Long id) {
+        Conta conta = contaRepository.findById(id)
+                .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
+        if (conta.getSaldo() != BigDecimal.valueOf(0)){
+            throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
         }
-        contaRepository.deleteById(id);
+        conta.setStatusConta(StatusConta.EXCLUIDA);
+        contaRepository.save(conta);
     }
 
     @Transactional(readOnly = true)
     public void buscarContaPorId(Long id) {
         Conta conta = contaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
     }
 
     @Transactional
     public ContaUpdateRequest atualizarConta(Long id, ContaUpdateRequest request) {
         Conta conta = contaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
         conta.setAgencia(request.agencia());
         Conta contaAtualizada = contaRepository.save(conta);
         return new ContaUpdateRequest(contaAtualizada.getAgencia(), contaAtualizada.getNumeroConta(), request.cpf());
@@ -104,7 +114,8 @@ public class ContaService {
                 conta.getAgencia(),
                 conta.getSaldo(),
                 conta.getLimiteChequeEspecial(),
-                titularIds);
+                titularIds,
+                conta.getStatusConta());
     }
     public ContaPoupResponse maptoContaPoupancaResponse(ContaPoupanca conta) {
         Set<Long> titularIds = conta.getTitulares().stream()
@@ -117,7 +128,8 @@ public class ContaService {
                 conta.getSaldo(),
                 conta.getDataAniversario(),
                 conta.getRendimento(),
-                titularIds);
+                titularIds,
+                conta.getStatusConta());
     }
     public ContaJovemResponse maptoContaJovemResponse(ContaJovem conta){
         Set<Long> titularIds = conta.getTitulares().stream()
@@ -129,6 +141,7 @@ public class ContaService {
                 conta.getAgencia(),
                 conta.getSaldo(),
                 conta.getResponsavelId(),
-                titularIds);
+                titularIds,
+                conta.getStatusConta());
     }
 }

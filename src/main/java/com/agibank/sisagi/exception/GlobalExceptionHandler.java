@@ -80,4 +80,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
+
+    @ExceptionHandler(SaldoInvalido.class)
+    public ResponseEntity<ErrorResponse> handleSaldoInvalido(SaldoInvalido ex, HttpServletRequest request){
+        ErrorResponse error = new ErrorResponse(ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
