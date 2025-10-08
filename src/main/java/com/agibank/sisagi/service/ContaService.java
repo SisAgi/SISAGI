@@ -1,9 +1,11 @@
 package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.model.*;
 import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.ContaRepository;
+import jakarta.persistence.DiscriminatorValue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,7 @@ public class ContaService {
     private final ClienteRepository clienteRepository;
 
     @Transactional
-    public ContaCorrenteResponse CriarContaCorrente(ContaCorrenteRequest request) {
+    public ContaCorrenteResponse criarContaCorrente(ContaCorrenteRequest request) {
         List<Cliente> titulares = clienteRepository.findAllById(request.titularIds());
         if (titulares.size() != request.titularIds().size()) {
             throw new IllegalArgumentException("Um ou mais IDs de clientes são inválidos");
@@ -38,7 +40,7 @@ public class ContaService {
     }
 
     @Transactional
-    public ContaPoupResponse CriarContaPoupanca(ContaPoupRequest request) {
+    public ContaPoupResponse criarContaPoupanca(ContaPoupRequest request) {
         List<Cliente> titulares = clienteRepository.findAllById(request.titularIds());
         if (titulares.size() != request.titularIds().size()) {
             throw new IllegalArgumentException("Um ou mais IDs de clientes são inválidos");
@@ -53,7 +55,7 @@ public class ContaService {
         return maptoContaPoupancaResponse(contaPoupanca);
     }
     @Transactional
-    public ContaJovemResponse CriarContaJovem(ContaJovemRequest request){
+    public ContaJovemResponse criarContaJovem(ContaJovemRequest request){
         Conta responsavel = contaRepository.findById(request.responsavelId())
                 .orElseThrow(() -> new IllegalArgumentException("Cliente responsável não encontrada"));
 
@@ -104,6 +106,7 @@ public class ContaService {
                 conta.getAgencia(),
                 conta.getSaldo(),
                 conta.getLimiteChequeEspecial(),
+                getTipoConta(conta),
                 titularIds);
     }
     public ContaPoupResponse maptoContaPoupancaResponse(ContaPoupanca conta) {
@@ -117,6 +120,7 @@ public class ContaService {
                 conta.getSaldo(),
                 conta.getDataAniversario(),
                 conta.getRendimento(),
+                getTipoConta(conta),
                 titularIds);
     }
     public ContaJovemResponse maptoContaJovemResponse(ContaJovem conta){
@@ -128,7 +132,28 @@ public class ContaService {
                 conta.getNumeroConta(),
                 conta.getAgencia(),
                 conta.getSaldo(),
-                conta.getResponsavelId(),
+                conta.getResponsavelId().getId(),
+                getTipoConta(conta),
                 titularIds);
+    }
+    public Object buscarDetalhesConta(Long contaId) {
+        Conta conta = contaRepository.findById(contaId)
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada com ID: " + contaId));
+        if (conta instanceof ContaCorrente cc) {
+            return maptoContaCorrenteResponse(cc);
+        } else if (conta instanceof ContaPoupanca pp) {
+            return maptoContaPoupancaResponse(pp);
+        } else if (conta instanceof ContaJovem cj) {
+            return maptoContaJovemResponse(cj);
+        }
+        throw new RecursoNaoEncontrado("Tipo de conta desconhecido para ID: " + contaId);
+    }
+    private static String getTipoConta(Conta conta){
+        DiscriminatorValue discriminatorValue = conta.getClass().getAnnotation(DiscriminatorValue.class);
+        if (discriminatorValue != null){
+            return discriminatorValue.value();
+        } else {
+            return "Tipo desconhecido";
+        }
     }
 }

@@ -7,7 +7,8 @@ public record ContaJovemResponse(Long id,
                                  String numeroConta,
                                  String agencia,
                                  BigDecimal saldo,
-                                 com.agibank.sisagi.model.Conta responsavelTitularDTO,
+                                 Long responsavelId,
+                                 String tipoConta,
                                  Set<Long> titularIds) {
 
 }

@@ -8,4 +8,5 @@ public record ContaCorrenteResponse(Long id,
                                     String agencia,
                                     BigDecimal saldo,
                                     BigDecimal limiteChequeEspecial,
+                                    String tipoConta,
                                     Set <Long> titularIds) {}

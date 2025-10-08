@@ -9,4 +9,5 @@ public record ContaPoupResponse(Long id,
                                 BigDecimal saldo,
                                 int diaAniversario,
                                 double rendimento,
+                                String tipoConta,
                                 Set <Long> titularIds) {}
