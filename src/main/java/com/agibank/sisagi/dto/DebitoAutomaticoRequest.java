@@ -13,7 +13,7 @@ public record DebitoAutomaticoRequest(
 
         @NotNull(message = "O dia agendado para o débito é obrigatório.")
         @Min(value = 1, message = "O dia agendado deve ser no mínimo 1.")
-        @Max(value = 31, message = "O dia agendado deve ser no máximo 31.")
+        @Max(value = 28, message = "O dia agendado deve ser no máximo 28.")
         Integer diaAgendado,
 
         @NotNull(message = "O tipo de serviço é obrigatório.")
@@ -22,5 +22,4 @@ public record DebitoAutomaticoRequest(
         @NotBlank(message = "O identificador do convênio é obrigatório.")
         String identificadorConvenio,
 
-        String descricao
-) {}
+        String descricao){} //Descrição pode ser opcional

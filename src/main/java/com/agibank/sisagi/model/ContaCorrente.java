@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 
 @Entity
 @DiscriminatorValue("CORRENTE")
@@ -16,7 +15,8 @@ import java.util.HashSet;
 @NoArgsConstructor
 @Builder
 public class ContaCorrente extends Conta {
-    @Column
-    private BigDecimal limiteChequeEspecial;
 
-    }
+    //Atributo específico da conta corrente
+    @Column(name = "limite-cheque-especial", nullable = false)
+    private BigDecimal limiteChequeEspecial;
+}

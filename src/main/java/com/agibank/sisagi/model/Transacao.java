@@ -20,36 +20,36 @@ public class Transacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ns_unico", nullable = false, unique = true, length = 50)
+    @Column(name = "ns_unico", nullable = false, unique = true, length = 32) // Gera um número sequencial único (NSU) para cada transação
     private String nsUnico;
 
-    @Column(name = "tipo_operacao", nullable = false)
+    @Column(name = "tipo_operacao", nullable = false) // Usado para exibir o tipo especifíco de transação
     @Enumerated(EnumType.STRING)
     private TipoTransacao tipoTransacao;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal valor;
 
-    @Column(name = "data_hora", nullable = false)
+    @Column(name = "data_hora", nullable = false) // Registra o momento em que a transação foi feita
     private LocalDateTime dataHora;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_gerente_executor", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) // Relação um para muitos (um gerente pode realizar N transações)
+    @JoinColumn(name = "id_gerente_executor", nullable = false) // Usado para dizer quem foi o gerente responsável por essa transação
     private Gerente idGerenteExecutor;
 
-    @Column(name = "motivo_movimentacao", columnDefinition = "TEXT")
+    @Column(name = "motivo_movimentacao", columnDefinition = "TEXT") // Discrimina o motivo da transação
     private String motivoMovimentacao;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) // Relação um para muitos (um cliente pode fazer N transferências)
     @JoinColumn(name = "conta_id", nullable = false)
     private Conta conta;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conta_origem_fk", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY) // Relação um para muitos
+    @JoinColumn(name = "conta_origem_fk")
     private Conta contaOrigem;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conta_destino_fk", nullable = true)
+    @JoinColumn(name = "conta_destino_fk")
     private Conta contaDestino;
 
     @PrePersist

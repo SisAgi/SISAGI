@@ -2,7 +2,6 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
-import com.agibank.sisagi.exception.SaldoInsuficienteException;
 import com.agibank.sisagi.exception.SaldoInvalido;
 import com.agibank.sisagi.model.*;
 import com.agibank.sisagi.model.enums.StatusConta;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,8 +75,8 @@ public class ContaService {
     }
 
     @Transactional
-    public void desativarConta(Long id) {
-        Conta conta = contaRepository.findById(id)
+    public void desativarConta(Long Id) {
+        Conta conta = contaRepository.findById(Id)
                 .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
         if (conta.getSaldo() != BigDecimal.valueOf(0)){
             throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
@@ -88,14 +86,14 @@ public class ContaService {
     }
 
     @Transactional(readOnly = true)
-    public void buscarContaPorId(Long id) {
-        Conta conta = contaRepository.findById(id)
+    public void buscarContaPorId(Long contaId) {
+        Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
     }
 
     @Transactional
-    public ContaUpdateRequest atualizarConta(Long id, ContaUpdateRequest request) {
-        Conta conta = contaRepository.findById(id)
+    public ContaUpdateRequest atualizarConta(Long contaId, ContaUpdateRequest request) {
+        Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
         conta.setAgencia(request.agencia());
         Conta contaAtualizada = contaRepository.save(conta);

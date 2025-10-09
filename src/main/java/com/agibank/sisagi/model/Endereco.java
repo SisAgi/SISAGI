@@ -15,8 +15,7 @@ public class Endereco {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_endereco")
     private Long idEndereco;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) // Relação de um para muitos(Um cliente pode ter vários endereços)
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
     

@@ -8,19 +8,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record ContaGlobalRequest(
-        @NotBlank(message = "O número da conta é obrigatório")
+
+        @NotBlank(message = "O número da conta é um campo obrigatório obrigatório")
         String numeroConta,
-        
-        @NotBlank(message = "A agência é obrigatória")
+
+        @NotBlank(message = "A agência é um campo obrigatório obrigatória")
         String agencia,
-        
-        @NotNull(message = "O saldo inicial em dólares é obrigatório")
-        @Positive(message = "O saldo deve ser positivo")
-        BigDecimal saldoDolares,
-        
+
         @NotNull(message = "Pelo menos um cliente titular é obrigatório")
         List<Long> clientesIds,
-        
+
         @NotBlank(message = "O código SWIFT é obrigatório")
-        String codigoSwift
-) {}
+        String codigoSwift) {}

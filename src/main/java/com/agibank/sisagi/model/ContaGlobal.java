@@ -15,13 +15,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 public class ContaGlobal extends Conta {
-    
-    @Column(name = "saldo_dolares", precision = 19, scale = 2)
-    private BigDecimal saldoDolares;
-    
+
+    // Atributos específicos da conta global
     @Column(name = "codigo_swift", length = 11)
     private String codigoSwift;
-    
+
     @Column(name = "cotacao_atual", precision = 10, scale = 4)
     private BigDecimal cotacaoAtual;
 }

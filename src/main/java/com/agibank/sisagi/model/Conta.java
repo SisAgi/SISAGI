@@ -3,10 +3,7 @@ package com.agibank.sisagi.model;
 import com.agibank.sisagi.exception.SaldoInsuficienteException;
 import com.agibank.sisagi.model.enums.StatusConta;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,55 +15,51 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "contas")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "tipo_conta", discriminatorType = DiscriminatorType.STRING)
-@EqualsAndHashCode(of = "id")
-@ToString(exclude = "titulares")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE) // Estratégia de herança: tabela única
+@DiscriminatorColumn(name = "tipo_conta", discriminatorType = DiscriminatorType.STRING) // Coluna para diferenciar os tipos de conta
+@EqualsAndHashCode(of = "id") // Gera equals e hashCode baseados no campo 'id'
+@ToString(exclude = "titulares") // Evita recursão infinita ao imprimir titulares
+@RequiredArgsConstructor
 public abstract class Conta {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_conta")
+    @Column(name = "id_conta") // Nome da coluna no banco de dados
     private Long id;
 
-    @Column(name = "numero_conta", nullable = false, unique = true, length = 20)
+    @Column(name = "numero_conta", nullable = false, unique = true, length = 20) // Número da conta deve ser único, não nulo e com tamanho máximo de 20 caracteres
     private String numeroConta;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 16) // Senha deve ser não nula e com tamanho máximo de 16 caracteres
     private String senha;
 
-    @Column(name = "agencia", nullable = false)
+    @Column(name = "agencia", nullable = false) // Agência deve ser não nula
     private String agencia;
 
-    @Column(name = "saldo", nullable = false, precision = 15, scale = 2)
+    @Column(name = "saldo", nullable = false, precision = 15, scale = 2) // Saldo deve ser não nulo, com precisão de 15 dígitos e 2 casas decimais
     private BigDecimal saldo;
 
-    @Column(name = "limite_cheque_especial", precision = 15, scale = 2)
-    private BigDecimal limiteChequeEspecial;
-
-    @Column(name = "data_abertura", nullable = false)
+    @Column(name = "data_abertura", nullable = false) // Data de abertura deve ser não nula
     private LocalDate dataAbertura;
 
-    @Column(name = "segmento_cliente", nullable = false, length = 50)
+    @Column(name = "segmento_cliente", nullable = false, length = 50) // Segmento do cliente deve ser não nulo e com tamanho máximo de 50 caracteres
     private String segmentoCliente;
 
-    @Column(name = "taxa_manutencao", nullable = false, precision = 10, scale = 2)
+    @Column(name = "taxa_manutencao", nullable = false, precision = 10, scale = 2) // Taxa de manutenção deve ser não nula, com precisão de 10 dígitos e 2 casas decimais
     private BigDecimal taxaManutencao;
 
-    @Column(name = "status", nullable = false, length = 50)
+    @Column(name = "status", nullable = false, length = 50) // Status da conta deve ser não nulo e com tamanho máximo de 50 caracteres
     private StatusConta statusConta;
 
-    @Column(name = "rendimento_poupanca", precision = 5, scale = 2)
-    private BigDecimal rendimentoPoupanca;
-
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY) // Relação muitos para muitos com Cliente, carregamento preguiçoso
     @JoinTable(
             name = "conta_titulares",
             joinColumns = @JoinColumn(name = "conta_id"),
             inverseJoinColumns = @JoinColumn(name = "cliente_id")
     )
-    private Set<Cliente> titulares = new HashSet<>();
+    private Set<Cliente> titulares = new HashSet<>(); // Inicializa o conjunto para evitar NullPointerException
 
-    @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Relação um para muitos com Transacões
     private List<Transacao> transacoes;
 
     public void creditar(BigDecimal valor) {

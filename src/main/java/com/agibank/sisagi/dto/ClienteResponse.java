@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ClienteResponse(
+
         Long id,
         String nomeCompleto,
         String email,

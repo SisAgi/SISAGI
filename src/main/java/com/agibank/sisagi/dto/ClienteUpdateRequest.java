@@ -1,4 +1,3 @@
 package com.agibank.sisagi.dto;
 
-public record ClienteUpdateRequest(String nome, String email) {
-}
+public record ClienteUpdateRequest(String nome, String email) {}

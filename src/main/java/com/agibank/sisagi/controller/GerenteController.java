@@ -18,38 +18,38 @@ public class GerenteController {
 
     private final GerenteService gerenteService;
 
-    // CREATE
+    // Endpoint para a criação de um novo gerente
     @PostMapping
     public ResponseEntity<GerenteResponse> criarGerente(@RequestBody GerenteRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(gerenteService.criarGerente(request));
     }
 
-    // READ (ALL)
+    // Endpoint para listar todos os gerentes
     @GetMapping
     public ResponseEntity<List<GerenteResponse>> getAllGerentes() {
         return ResponseEntity.ok(gerenteService.listarTodos());
     }
 
-    // READ (ONE)
+    // Endpoint para buscar um gerente pelo ID
     @GetMapping("/{id}")
     public ResponseEntity<GerenteResponse> getGerenteById(@PathVariable Long id) {
         return ResponseEntity.ok(gerenteService.buscarPorId(id));
     }
 
-    // UPDATE
+    // Endpoint para atualizar os dados de um gerente existente
     @PutMapping("/{id}")
     public ResponseEntity<GerenteResponse> updateGerente(@PathVariable Long id, @RequestBody GerenteRequest request) {
         return ResponseEntity.ok(gerenteService.atualizarGerente(id, request));
     }
 
-    // DELETE
+    // Endpoint para deletar um gerente pelo ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGerente(@PathVariable Long id) {
         gerenteService.deletarGerente(id);
         return ResponseEntity.noContent().build();
     }
 
-    // LOGIN
+    // Endpoint para login do gerente
     @PostMapping("/login")
     public ResponseEntity<GerenteResponse> login(@RequestBody LoginRequest request) {
         if (request.gerenteId().equals(1L) && "123456".equals(request.senha())) {

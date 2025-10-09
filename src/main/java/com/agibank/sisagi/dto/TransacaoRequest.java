@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record TransacaoRequest(
+
         @NotNull(message = "O tipo de transação é obrigatório.")
         TipoTransacao tipoTransacao,
 
@@ -21,6 +22,4 @@ public record TransacaoRequest(
 
         Long contaDestinoId,
 
-        String motivoMovimentacao
-) {
-}
+        String motivoMovimentacao){}

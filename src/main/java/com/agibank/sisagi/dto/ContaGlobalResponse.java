@@ -5,6 +5,7 @@ import com.agibank.sisagi.model.enums.StatusConta;
 import java.math.BigDecimal;
 
 public record ContaGlobalResponse(
+
         Long id,
         String numeroConta,
         String agencia,

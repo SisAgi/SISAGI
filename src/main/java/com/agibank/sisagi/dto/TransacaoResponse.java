@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record TransacaoResponse(
+
         Long id,
         TipoTransacao tipo,
         BigDecimal valor,
@@ -18,6 +19,5 @@ public record TransacaoResponse(
         String numeroContaDestino,
         Long gerenteExecutorId,
         String nomeGerenteExecutor,
-        String motivoMovimentacao
-) {}
+        String motivoMovimentacao){}
 

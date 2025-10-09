@@ -10,13 +10,14 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@MappedSuperclass
+@MappedSuperclass // Superclasse que funciona como um molde para cliente e gerente
 public abstract class Usuarios {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false, unique = true, length = 11)
+    @Column(nullable = false, unique = true, length = 15)
     private String cpf;
     
     @Column(name = "nome_completo", nullable = false, length = 150)
