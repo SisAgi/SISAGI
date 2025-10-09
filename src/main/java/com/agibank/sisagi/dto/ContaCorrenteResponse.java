@@ -5,11 +5,13 @@ import com.agibank.sisagi.model.enums.StatusConta;
 import java.math.BigDecimal;
 import java.util.Set;
 
-public record ContaCorrenteResponse(Long id,
-                                    String numeroConta,
-                                    String agencia,
-                                    BigDecimal saldo,
-                                    BigDecimal limiteChequeEspecial,
-                                    Set <Long> titularIds,
-                                    StatusConta statusConta,
-                                    String tipoConta) {}
+public record ContaCorrenteResponse(
+
+        Long id,
+        String numeroConta,
+        String agencia,
+        BigDecimal saldo,
+        BigDecimal limiteChequeEspecial,
+        Set<Long> titularIds,
+        StatusConta statusConta,
+        String tipoConta) {}

@@ -16,11 +16,11 @@ import java.time.LocalDate;
 @Builder
 public class ContaPoupanca extends Conta{
 
+    // Atributos específicos de conta poupança
     @Column(name = "data_aniversario")
     @Builder.Default
     private int dataAniversario = LocalDate.now().getDayOfMonth();
 
     @Column(name = "rendimento")
-    @Builder.Default
     private double rendimento = 0.05;
 }

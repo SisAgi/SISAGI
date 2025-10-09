@@ -9,13 +9,14 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Embeddable //notação usada para que possamos transferir atributos de telefone para outras classes, no casso telefone.
+@Embeddable // Anotação usada para transferir atributos de telefone para outras entidades
 public class Telefone {
 
     private String ddi;
     private String ddd;
     private String numero;
 
+    // Recebe um enum para definir o tipo de telefone
     @Enumerated(EnumType.STRING)
     private TipoTelefone tipoTelefone;
 

@@ -13,6 +13,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class DebitoAutomatico {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,6 +29,9 @@ public class DebitoAutomatico {
 
     private String descricao;
 
+    @Column(name = "frequencia", nullable = false)
+    private String frequencia;
+
     // O status da regra de débito (ATIVO, SUSPENSO, CANCELADO)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -41,5 +45,4 @@ public class DebitoAutomatico {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conta_id", nullable = false)
     private Conta conta;
-
 }

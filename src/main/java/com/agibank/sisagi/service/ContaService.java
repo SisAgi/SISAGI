@@ -2,7 +2,6 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
-import com.agibank.sisagi.exception.SaldoInsuficienteException;
 import com.agibank.sisagi.exception.SaldoInvalido;
 import com.agibank.sisagi.model.*;
 import com.agibank.sisagi.model.enums.StatusConta;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +24,7 @@ public class ContaService {
     private final ContaRepository contaRepository;
     private final ClienteRepository clienteRepository;
 
+    // Cria uma conta poupança
     @Transactional
     public ContaCorrenteResponse criarContaCorrente(ContaCorrenteRequest request) {
         List<Cliente> titulares = clienteRepository.findAllById(request.titularIds());
@@ -38,12 +37,14 @@ public class ContaService {
         contaCorrente.setAgencia(request.agencia());
         contaCorrente.setLimiteChequeEspecial(request.limiteChequeEspecial());
         contaCorrente.setTitulares(new HashSet<>(titulares));
+        contaCorrente.setStatusConta(StatusConta.ATIVA);
         contaRepository.save(contaCorrente);
         return maptoContaCorrenteResponse(contaCorrente);
     }
-
+    // Cria uma conta poupança
     @Transactional
     public ContaPoupResponse criarContaPoupanca(ContaPoupRequest request) {
+
         List<Cliente> titulares = clienteRepository.findAllById(request.titularIds());
         if (titulares.size() != request.titularIds().size()) {
             throw new IllegalArgumentException("Um ou mais IDs de clientes são inválidos");
@@ -54,16 +55,19 @@ public class ContaService {
         contaPoupanca.setAgencia(request.agencia());
         contaPoupanca.setRendimento(contaPoupanca.getRendimento());
         contaPoupanca.setTitulares(new HashSet<>(titulares));
+        contaPoupanca.setStatusConta(StatusConta.ATIVA);
         contaRepository.save(contaPoupanca);
         return maptoContaPoupancaResponse(contaPoupanca);
     }
+
+    // Cria uma conta jovem
     @Transactional
-    public ContaJovemResponse criarContaJovem(ContaJovemRequest request){
+    public ContaJovemResponse criarContaJovem(ContaJovemRequest request) {
         Conta responsavel = contaRepository.findById(request.responsavelId())
                 .orElseThrow(() -> new IllegalArgumentException("Cliente responsável não encontrada"));
 
         Set<Cliente> titulares = new HashSet<>(clienteRepository.findAllById(request.titularIds()));
-        if (titulares.isEmpty()){
+        if (titulares.isEmpty()) {
             throw new IllegalArgumentException("Nenhum cliente titular encontrado");
         }
         ContaJovem contaJovem = new ContaJovem();
@@ -72,15 +76,38 @@ public class ContaService {
         contaJovem.setAgencia(request.agencia());
         contaJovem.setResponsavelId(responsavel);
         contaJovem.setTitulares(titulares);
+        contaJovem.setStatusConta(StatusConta.ATIVA);
         contaRepository.save(contaJovem);
         return maptoContaJovemResponse(contaJovem);
     }
 
+    // Cria a conta global
     @Transactional
-    public void desativarConta(Long id) {
-        Conta conta = contaRepository.findById(id)
-                .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
-        if (conta.getSaldo() != BigDecimal.valueOf(0)){
+    public ContaGlobalResponse criarContaGlobal(ContaGlobalRequest request) {
+
+        List<Cliente> titulares = clienteRepository.findAllById(request.titularIds());
+        if (titulares.size() != request.titularIds().size()) {
+            throw new RecursoNaoEncontrado("Um ou mais IDs de clientes são inválidos");
+        }
+        ContaGlobal contaGlobal = new ContaGlobal();
+        contaGlobal.setNumeroConta(request.numeroConta());
+        contaGlobal.setSaldo(BigDecimal.ZERO);
+        contaGlobal.setSaldoDolar(BigDecimal.ZERO);
+        contaGlobal.setCodigoSwift("AGIBRSP201");
+        contaGlobal.setAgencia(request.agencia());
+        contaGlobal.setTitulares(new HashSet<>(titulares));
+        contaGlobal.setStatusConta(StatusConta.ATIVA);
+        contaRepository.save(contaGlobal);
+        return maptoContaGlobalResponse(contaGlobal);
+    }
+
+    // Desativa a conta impedindo que a mesma realize transações, porém ainda estando presente no banco de dados como forma de consulta
+    @Transactional
+    public void desativarConta(Long Id) {
+
+        Conta conta = contaRepository.findById(Id)
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
+        if (conta.getSaldo().compareTo(BigDecimal.ZERO) != 0 ) {
             throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
         }
         conta.setStatusConta(StatusConta.EXCLUIDA);
@@ -88,14 +115,14 @@ public class ContaService {
     }
 
     @Transactional(readOnly = true)
-    public void buscarContaPorId(Long id) {
-        Conta conta = contaRepository.findById(id)
+    public void buscarContaPorId(Long contaId) {
+        Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
     }
 
     @Transactional
-    public ContaUpdateRequest atualizarConta(Long id, ContaUpdateRequest request) {
-        Conta conta = contaRepository.findById(id)
+    public ContaUpdateRequest atualizarConta(Long contaId, ContaUpdateRequest request) {
+        Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
         conta.setAgencia(request.agencia());
         Conta contaAtualizada = contaRepository.save(conta);
@@ -116,6 +143,8 @@ public class ContaService {
                 conta.getStatusConta(),
                 getTipoConta(conta));
     }
+
+    // Tem a função de mapear os campos da entidade conta poupança para o seu respectivo DTO de resposta
     public ContaPoupResponse maptoContaPoupancaResponse(ContaPoupanca conta) {
         Set<Long> titularIds = conta.getTitulares().stream()
                 .map(Cliente::getId)
@@ -131,7 +160,9 @@ public class ContaService {
                 titularIds,
                 conta.getStatusConta());
     }
-    public ContaJovemResponse maptoContaJovemResponse(ContaJovem conta){
+
+    // Tem a função de mapear os campos da entidade conta jovem para o seu respectivo DTO de resposta
+    public ContaJovemResponse maptoContaJovemResponse(ContaJovem conta) {
         Set<Long> titularIds = conta.getTitulares().stream()
                 .map(Cliente::getId)
                 .collect(Collectors.toSet());
@@ -145,6 +176,26 @@ public class ContaService {
                 conta.getStatusConta(),
                 getTipoConta(conta));
     }
+
+    // Tem a função de mapear os campos da entidade conta global para o seu respectivo DTO de resposta
+    public ContaGlobalResponse maptoContaGlobalResponse(ContaGlobal conta) {
+        Set<Long> titularIds = conta.getTitulares().stream()
+                .map(Cliente::getId)
+                .collect(Collectors.toSet());
+        return new ContaGlobalResponse(
+                conta.getId(),
+                conta.getNumeroConta(),
+                conta.getAgencia(),
+                conta.getSaldo(),
+                conta.getSaldoDolar(),
+                conta.getCodigoSwift(),
+                titularIds,
+                conta.getStatusConta(),
+                getTipoConta(conta));
+
+    }
+
+    // Tem a função de buscar os detalhes de uma conta específica
     public Object buscarDetalhesConta(Long contaId) {
         Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada com ID: " + contaId));
@@ -157,9 +208,11 @@ public class ContaService {
         }
         throw new RecursoNaoEncontrado("Tipo de conta desconhecido para ID: " + contaId);
     }
-    private static String getTipoConta(Conta conta){
+
+    // Descobre o tipo da conta através do discriminator value
+    private static String getTipoConta(Conta conta) {
         DiscriminatorValue discriminatorValue = conta.getClass().getAnnotation(DiscriminatorValue.class);
-        if (discriminatorValue != null){
+        if (discriminatorValue != null) {
             return discriminatorValue.value();
         } else {
             return "Tipo desconhecido";

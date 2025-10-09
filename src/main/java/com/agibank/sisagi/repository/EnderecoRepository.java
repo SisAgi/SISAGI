@@ -9,13 +9,12 @@ import java.util.Optional;
 
 @Repository
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
-    
+
     List<Endereco> findByClienteId(Long clienteId);
-    
+
     Optional<Endereco> findByClienteIdAndTipoEndereco(Long clienteId, String tipoEndereco);
-    
+
     List<Endereco> findByCep(String cep);
-    
+
     List<Endereco> findByCidadeAndEstado(String cidade, String estado);
-    
 }

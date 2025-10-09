@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class GerenteService {
     private final GerenteRepository gerenteRepository;
 
-    // CREATE
+    // Cria um gerente adicional
     @Transactional
     public GerenteResponse criarGerente(GerenteRequest request) {
         if (gerenteRepository.findByEmail(request.email()).isPresent()) {
@@ -39,7 +39,7 @@ public class GerenteService {
         return mapToResponse(gerenteSalvo);
     }
 
-    // READ (Single)
+    // Consulta um gerente via "ID"
     @Transactional(readOnly = true)
     public GerenteResponse buscarPorId(Long id) {
         Gerente gerente = gerenteRepository.findById(id)
@@ -47,7 +47,7 @@ public class GerenteService {
         return mapToResponse(gerente);
     }
 
-    // READ (All)
+    // Listar todos os gerentes
     @Transactional(readOnly = true)
     public List<GerenteResponse> listarTodos() {
         return gerenteRepository.findAll().stream()
@@ -55,7 +55,7 @@ public class GerenteService {
                 .collect(Collectors.toList());
     }
 
-    // UPDATE
+    // Atualiza um gerente
     @Transactional
     public GerenteResponse atualizarGerente(Long id, GerenteRequest request) {
         Gerente gerenteExistente = gerenteRepository.findById(id)
@@ -67,7 +67,7 @@ public class GerenteService {
         return mapToResponse(gerenteAtualizado);
     }
 
-    // DELETE
+    // Deleta um gerente
     @Transactional
     public void deletarGerente(Long id) {
         if (!gerenteRepository.existsById(id)) {
@@ -76,6 +76,7 @@ public class GerenteService {
         gerenteRepository.deleteById(id);
     }
 
+    // Tem a função de mapear os campos da entidade para um DTO de resposta
     private GerenteResponse mapToResponse(Gerente gerente) {
         return new GerenteResponse(
                 gerente.getId(),

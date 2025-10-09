@@ -18,6 +18,7 @@ public class TransacaoController {
     
     private final TransacaoService transacaoService;
 
+    // Endpoint para realizar uma transferência entre contas
     @PostMapping("/transferencia")
     public ResponseEntity<TransacaoResponse> realizarTransferencia(
             @Valid @RequestBody TransacaoRequest request,
@@ -26,6 +27,7 @@ public class TransacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // Endpoint para realizar um depósito em uma conta
     @PostMapping("/deposito")
     public ResponseEntity<TransacaoResponse> realizarDeposito(
             @Valid @RequestBody TransacaoRequest request,
@@ -34,6 +36,7 @@ public class TransacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // Endpoint para realizar um saque em uma conta
     @PostMapping("/saque")
     public ResponseEntity<TransacaoResponse> realizarSaque(
             @Valid @RequestBody TransacaoRequest request,
@@ -42,6 +45,7 @@ public class TransacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // Endpoint para buscar o extrato de uma conta
     @GetMapping("/extrato/{contaId}")
     public ResponseEntity<List<TransacaoResponse>> buscarExtratoPorConta(@PathVariable Long contaId) {
         List<TransacaoResponse> extrato = transacaoService.buscarExtratoPorConta(contaId);

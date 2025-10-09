@@ -9,8 +9,10 @@ import java.util.Map;
  * API: https://www.exchangerate-api.com/
  */
 public record ExchangeRateResponse(
+
         String result,
         String documentation,
+
         @JsonProperty("terms_of_use")
         String termsOfUse,
         @JsonProperty("time_last_update_unix")

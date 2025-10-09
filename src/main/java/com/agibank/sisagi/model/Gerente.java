@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 @Table(name = "gerentes")
 public class Gerente extends Usuarios {
+
+    //Atributo específico de Gerente
     @Column(nullable = false, unique = true)
     private String matricula;
 }

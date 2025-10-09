@@ -9,7 +9,7 @@ import com.agibank.sisagi.model.enums.TipoTransacao;
 import com.agibank.sisagi.repository.ContaRepository;
 import com.agibank.sisagi.repository.GerenteRepository;
 import com.agibank.sisagi.repository.TransacaoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,19 +21,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class TransacaoService {
 
     private final TransacaoRepository transacaoRepository;
     private final ContaRepository contaRepository;
     private final GerenteRepository gerenteRepository;
 
-    @Autowired
-    public TransacaoService(TransacaoRepository transacaoRepository, ContaRepository contaRepository, GerenteRepository gerenteRepository) {
-        this.transacaoRepository = transacaoRepository;
-        this.contaRepository = contaRepository;
-        this.gerenteRepository = gerenteRepository;
-    }
-
+    // Realiza uma transferência entre contas
     @Transactional
     public TransacaoResponse realizarTransferencia(TransacaoRequest dto, Long gerenteExecutorId) {
         // Validação básica
@@ -71,6 +66,7 @@ public class TransacaoService {
         return toResponse(debito);
     }
 
+    // Realiza um depósito para uma conta específica
     @Transactional
     public TransacaoResponse realizarDeposito(TransacaoRequest dto, Long gerenteExecutorId) {
         Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
@@ -94,6 +90,7 @@ public class TransacaoService {
         return toResponse(transacao);
     }
 
+    // Realiza um saque
     @Transactional
     public TransacaoResponse realizarSaque(TransacaoRequest dto, Long gerenteExecutorId) {
         Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
@@ -116,6 +113,20 @@ public class TransacaoService {
 
         return toResponse(transacao);
     }
+
+    // Exibe extrato de conta
+    @Transactional(readOnly = true)
+    public List<TransacaoResponse> buscarExtratoPorConta(Long contaId) {
+        Conta conta = contaRepository.findById(contaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
+
+        List<Transacao> transacoes = transacaoRepository.findByConta(conta);
+
+        return transacoes.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
 
     // Métodos utilitários de débito e crédito
     private Transacao executarDebito(Conta conta, BigDecimal valor, TipoTransacao tipo, Gerente gerente, String motivo, String nsUnico) {
@@ -150,17 +161,7 @@ public class TransacaoService {
         return transacao;
     }
 
-    public List<TransacaoResponse> buscarExtratoPorConta(Long contaId) {
-        Conta conta = contaRepository.findById(contaId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
-
-        List<Transacao> transacoes = transacaoRepository.findByConta(conta);
-
-        return transacoes.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
+    // Tem a função de mapear os campos da entidade para um DTO de resposta
     private TransacaoResponse toResponse(Transacao transacao) {
         Long contaOrigemId = (transacao.getContaOrigem() != null) ? transacao.getContaOrigem().getId() : null;
         String numeroContaOrigem = (transacao.getContaOrigem() != null) ? transacao.getContaOrigem().getNumeroConta() : null;
@@ -170,6 +171,7 @@ public class TransacaoService {
 
         String nomeGerenteExecutor = (transacao.getIdGerenteExecutor() != null) ? transacao.getIdGerenteExecutor().getNomeCompleto() : null;
 
+        assert transacao.getIdGerenteExecutor() != null;
         return new TransacaoResponse(
                 transacao.getId(),
                 transacao.getTipoTransacao(),
