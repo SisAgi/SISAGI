@@ -108,7 +108,7 @@ public class ClienteService {
 
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente não encontrado. ID: " + id));
-        clienteExistente.setNomeCompleto(request.nome());
+        clienteExistente.setNomeCompleto(request.nomeCompleto());
         clienteExistente.setEmail(request.email());
         Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
         return mapToClienteResponse(clienteAtualizado);
