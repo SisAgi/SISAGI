@@ -24,6 +24,7 @@ public record ClienteRequest(
         @NotBlank(message = "CPF não pode ser vazio")
         @Cpf
         String cpf,
+        @NotNull(message = "ID do gerente é um campo obrigatório")
         Long gerenteId,
 
         @NotBlank(message = "DDI é um campo obrigatório")

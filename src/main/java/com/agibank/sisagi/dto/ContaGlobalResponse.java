@@ -3,6 +3,7 @@ package com.agibank.sisagi.dto;
 import com.agibank.sisagi.model.enums.StatusConta;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 public record ContaGlobalResponse(
 
@@ -12,5 +13,6 @@ public record ContaGlobalResponse(
         BigDecimal saldo,
         BigDecimal saldoDolares,
         String codigoSwift,
+        Set<Long> titularIds,
         StatusConta statusConta,
         String tipoConta) {}

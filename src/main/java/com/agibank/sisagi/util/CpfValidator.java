@@ -1,13 +1,13 @@
 package com.agibank.sisagi.util;
 
 public class CpfValidator {
-    public static boolean isValid(String cpf){
-        String cpfLimpo =  cpf.replaceAll("[^0-9]","");
+    public static boolean isValid(String cpf) {
+        String cpfLimpo = cpf.replaceAll("[^0-9]", "");
 
-        if(cpfLimpo.length() != 11){
+        if (cpfLimpo.length() != 11) {
             return false;
         }
-        if (cpfLimpo.matches(("(\\d)\\1{10}"))){
+        if (cpfLimpo.matches(("(\\d)\\1{10}"))) {
             return false;
         }
         try {

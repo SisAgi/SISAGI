@@ -7,32 +7,30 @@ import com.agibank.sisagi.model.DebitoAutomatico;
 import com.agibank.sisagi.model.enums.StatusDebito;
 import com.agibank.sisagi.repository.ContaRepository;
 import com.agibank.sisagi.repository.DebitoAutomaticoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DebitoAutomaticoService {
 
     private final DebitoAutomaticoRepository debitoRepository;
     private final ContaRepository contaRepository;
 
-    @Autowired
-    public DebitoAutomaticoService(DebitoAutomaticoRepository debitoRepository, ContaRepository contaRepository) {
-        this.debitoRepository = debitoRepository;
-        this.contaRepository = contaRepository;
-    }
-
+    // Cria um débito automático
+    @Transactional
     public DebitoAutomaticoResponse criarDebito(DebitoAutomaticoRequest request) {
-        //Validação da Conta
+
         Conta conta = contaRepository.findById(request.contaId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada com ID: " + request.contaId()));
 
-        //Validação de Duplicidade
+        // Verifica se não existe duplicidade
         if (debitoRepository.findByIdentificadorConvenio(request.identificadorConvenio()) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Já existe um débito automático cadastrado para este identificador de convênio.");
         }
@@ -50,6 +48,8 @@ public class DebitoAutomaticoService {
         return toResponse(salvo);
     }
 
+    // Cancela um débito automático
+    @Transactional
     public DebitoAutomaticoResponse cancelarDebito(Long id) {
         DebitoAutomatico debito = debitoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Regra de débito não encontrada com ID: " + id));
@@ -64,12 +64,16 @@ public class DebitoAutomaticoService {
         return toResponse(salvo);
     }
 
+    // Busca um débito através do "ID"
+    @Transactional(readOnly = true)
     public DebitoAutomaticoResponse buscarPorId(Long id) {
         DebitoAutomatico debito = debitoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Regra de débito não encontrada com ID: " + id));
         return toResponse(debito);
     }
 
+    // Consulta todos os débitos
+    @Transactional(readOnly = true)
     public List<DebitoAutomaticoResponse> listarTodos() {
         return debitoRepository.findAll().stream()
                 .map(this::toResponse)
@@ -81,6 +85,7 @@ public class DebitoAutomaticoService {
                 debito.getId(),
                 debito.getConta().getId(),
                 debito.getDiaAgendado(),
+                debito.getFrequencia(),
                 debito.getTipoServico().getDescricao(),
                 debito.getStatus().getDescricao(),
                 debito.getIdentificadorConvenio(),

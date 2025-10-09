@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface GerenteRepository extends JpaRepository<Gerente, Long> {
+
     Optional<Gerente> findByMatricula(String matricula);
 
     Optional<Gerente> findByEmail(String email);

@@ -73,51 +73,58 @@ public class ClienteService {
         telefone.setNumero(request.numeroTelefone());
         cliente.setTelefone(telefone);
 
-        if (request.gerenteId() != null) {
-            Gerente gerenteAssociado = gerenteRepository.findById(request.gerenteId())
-                    .orElseThrow(() -> new RecursoNaoEncontrado("Gerente não encontrado. ID: "+ request.gerenteId()));
-            cliente.setGerente(gerenteAssociado);
-        }
+        // Metodo para garantir que o cliente sempre tenha um id de gerente atribuido a criação da conta
+        Gerente gerenteAssociado = gerenteRepository.findById(request.gerenteId())
+                .orElseThrow(() -> new RecursoNaoEncontrado("Gerente não encontrado com o ID fornecido."));
+
+        cliente.setGerente(gerenteAssociado);
 
         clienteRepository.save(cliente);
         return mapToClienteResponse(cliente);
     }
 
+    //Busca um cliente específico usando o ID como referência
     @Transactional(readOnly = true)
     public ClienteResponse buscarPorId(Long id) {
+
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente digitado não encontrado. ID: "+id));
+                .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente digitado não encontrado. ID: " + id));
         return mapToClienteResponse(cliente);
     }
 
+    //Lista todos os clientes
     @Transactional(readOnly = true)
     public List<ClienteResponse> listarTodos() {
+
         List<Cliente> clientes = clienteRepository.findAll();
         return clientes.stream()
                 .map(this::mapToClienteResponse)
                 .toList();
     }
 
+    // Atualiza um cliente específico
     @Transactional
     public ClienteResponse atualizar(Long id, ClienteUpdateRequest request) {
+
         Cliente clienteExistente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente não encontrado. ID: "+id));
+                .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente não encontrado. ID: " + id));
         clienteExistente.setNomeCompleto(request.nome());
         clienteExistente.setEmail(request.email());
         Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
         return mapToClienteResponse(clienteAtualizado);
     }
-
+    //Deleta um cliente
     @Transactional
     public void deletar(Long id) {
+
         if (!clienteRepository.existsById(id)) {
-            throw new RecursoNaoEncontrado("ID de cliente não encontrado. ID: "+id);
+            throw new RecursoNaoEncontrado("ID de cliente não encontrado. ID: " + id);
         }
         clienteRepository.deleteById(id);
     }
-
+    // Faz o trabalho de mapear os campos da entidade para o DTO de resposta
     private ClienteResponse mapToClienteResponse(Cliente cliente) {
-        // Mapear os campos da entidade para o DTO de resposta
+
         return new ClienteResponse(
                 cliente.getId(),
                 cliente.getNomeCompleto(),

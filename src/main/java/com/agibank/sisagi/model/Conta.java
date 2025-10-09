@@ -36,22 +36,22 @@ public abstract class Conta {
     @Column(name = "agencia", nullable = false) // Agência deve ser não nula
     private String agencia;
 
-    @Column(name = "saldo", nullable = false, precision = 15, scale = 2) // Saldo deve ser não nulo, com precisão de 15 dígitos e 2 casas decimais
+    @Column(name = "saldo", nullable = false, precision = 15, scale = 2) // Saldo não pode ser nulo, com precisão de 15 dígitos e 2 casas decimais
     private BigDecimal saldo;
 
-    @Column(name = "data_abertura", nullable = false) // Data de abertura deve ser não nula
+    @Column(name = "data_abertura", nullable = false) // Data de abertura da conta
     private LocalDate dataAbertura;
 
-    @Column(name = "segmento_cliente", nullable = false, length = 50) // Segmento do cliente deve ser não nulo e com tamanho máximo de 50 caracteres
+    @Column(name = "segmento_cliente", nullable = false, length = 50) // Segmento que indica o padrão de benefícios do cliente
     private String segmentoCliente;
 
-    @Column(name = "taxa_manutencao", nullable = false, precision = 10, scale = 2) // Taxa de manutenção deve ser não nula, com precisão de 10 dígitos e 2 casas decimais
+    @Column(name = "taxa_manutencao", nullable = false, precision = 10, scale = 2) // Taxa de manutenção sob os custos mensais de operação de conta
     private BigDecimal taxaManutencao;
 
-    @Column(name = "status", nullable = false, length = 50) // Status da conta deve ser não nulo e com tamanho máximo de 50 caracteres
+    @Column(name = "status", nullable = false, length = 50) // Status da conta deve indicar se a mesma está "ATIVA" ou "DESATIVADA"
     private StatusConta statusConta;
 
-    @ManyToMany(fetch = FetchType.LAZY) // Relação muitos para muitos com Cliente, carregamento preguiçoso
+    @ManyToMany(fetch = FetchType.LAZY) // Relação muitos para muitos com Cliente
     @JoinTable(
             name = "conta_titulares",
             joinColumns = @JoinColumn(name = "conta_id"),

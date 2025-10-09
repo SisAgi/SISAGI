@@ -29,6 +29,4 @@ public record ClienteResponse(
         Boolean ePpe,
         UserRole role,
         List<EnderecoResponse> enderecos,
-        TelefoneResponse telefoneResponse
-) {
-}
+        TelefoneResponse telefoneResponse) {}

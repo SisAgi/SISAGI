@@ -11,6 +11,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     //TODO: Implementar security para remover aviso
     Optional<Cliente> findByEmail(String email);
+
     Optional<Cliente> findById(Long id);
+
     Optional<Cliente> findByGerenteId(Long gerenteId);
 }

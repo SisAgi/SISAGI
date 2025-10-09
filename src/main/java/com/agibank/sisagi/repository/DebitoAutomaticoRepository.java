@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface DebitoAutomaticoRepository extends JpaRepository<DebitoAutomatico, Long> {
+
     DebitoAutomatico findByIdentificadorConvenio(String identificadorConvenio);
 
     List<DebitoAutomatico> findByStatus(StatusDebito status);

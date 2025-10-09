@@ -20,6 +20,9 @@ public class ContaGlobal extends Conta {
     @Column(name = "codigo_swift", length = 11)
     private String codigoSwift;
 
+    @Column(name = "saldo_dolar")
+    private BigDecimal saldoDolar;
+
     @Column(name = "cotacao_atual", precision = 10, scale = 4)
     private BigDecimal cotacaoAtual;
 }

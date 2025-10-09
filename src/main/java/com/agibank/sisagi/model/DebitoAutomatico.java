@@ -29,6 +29,9 @@ public class DebitoAutomatico {
 
     private String descricao;
 
+    @Column(name = "frequencia", nullable = false)
+    private String frequencia;
+
     // O status da regra de débito (ATIVO, SUSPENSO, CANCELADO)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

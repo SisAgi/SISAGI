@@ -1,11 +1,10 @@
 package com.agibank.sisagi.controller;
 
 import com.agibank.sisagi.dto.*;
-import com.agibank.sisagi.model.ContaCorrente;
-import com.agibank.sisagi.model.ContaPoupanca;
 import com.agibank.sisagi.service.ContaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,22 +14,28 @@ import org.springframework.web.bind.annotation.*;
 public class ContaController {
     private final ContaService contaService;
 
-    // Endpoint para a criação de uma nova conta corrente
+    // Endpoint para a criação de uma nova conta-corrente
     @PostMapping("/corrente")
     public ResponseEntity<ContaCorrenteResponse> criarContaCorrente(@Valid @RequestBody ContaCorrenteRequest contaCorrente) {
-        return ResponseEntity.ok(contaService.criarContaCorrente(contaCorrente));
+        return ResponseEntity.status(HttpStatus.CREATED).body(contaService.criarContaCorrente(contaCorrente));
     }
 
     // Endpoint para a criação de uma nova conta poupança
     @PostMapping("/poupanca")
     public ResponseEntity<ContaPoupResponse> criarContaPoupanca(@Valid @RequestBody ContaPoupRequest contaPoupanca) {
-        return ResponseEntity.ok(contaService.criarContaPoupanca(contaPoupanca));
+        return ResponseEntity.status(HttpStatus.CREATED).body(contaService.criarContaPoupanca(contaPoupanca));
     }
 
     // Endpoint para a criação de uma nova conta jovem
-    @PostMapping("/contajovem")
-    public ResponseEntity<ContaJovemResponse> criarContaJovem(@Valid @RequestBody ContaJovemRequest contaJovemResponse){
-        return ResponseEntity.ok(contaService.criarContaJovem(contaJovemResponse));
+    @PostMapping("/jovem")
+    public ResponseEntity<ContaJovemResponse> criarContaJovem(@Valid @RequestBody ContaJovemRequest contaJovem){
+        return ResponseEntity.status(HttpStatus.CREATED).body(contaService.criarContaJovem(contaJovem));
+    }
+
+    //Endpoint para a criação de uma nova conta global
+    @PostMapping("/global")
+    public ResponseEntity<ContaGlobalResponse> criarContaGlobal(@Valid @RequestBody ContaGlobalRequest contaGlobal){
+        return ResponseEntity.status(HttpStatus.CREATED).body(contaService.criarContaGlobal(contaGlobal));
     }
 
     // Endpoint para buscar uma conta pelo ID
@@ -39,5 +44,4 @@ public class ContaController {
         Object contaResponse = contaService.buscarDetalhesConta(contaId);
         return ResponseEntity.ok(contaResponse);
     }
-
 }
