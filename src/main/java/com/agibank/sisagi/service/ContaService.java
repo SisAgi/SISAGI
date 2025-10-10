@@ -258,4 +258,10 @@ public class ContaService {
             return "Tipo desconhecido";
         }
     }
+
+    public BigDecimal consultarSaldo(String numeroConta){
+        Conta conta = contaRepository.findByNumeroConta(numeroConta)
+                .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
+        return conta.getSaldo();
+    }
 }
