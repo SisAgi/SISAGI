@@ -6,6 +6,7 @@ import com.agibank.sisagi.model.Cliente;
 import com.agibank.sisagi.model.Endereco;
 import com.agibank.sisagi.model.Gerente;
 import com.agibank.sisagi.model.Telefone;
+import com.agibank.sisagi.model.enums.SegmentoCliente;
 import com.agibank.sisagi.model.enums.UserRole;
 import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.GerenteRepository;
@@ -20,6 +21,8 @@ import java.util.List;
 public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final GerenteRepository gerenteRepository;
+    private final ContaService contaService;
+    private final ViaCepService viaCepService;
 
     @Transactional
     public ClienteResponse criar(ClienteRequest request) {
@@ -27,12 +30,15 @@ public class ClienteService {
             throw new IllegalArgumentException("Email já cadastrado");
         }
 
+        if (clienteRepository.findByCpf(request.cpf()).isPresent()) {
+            throw new IllegalArgumentException("CPF já cadastrado.");
+        }
+
         Cliente cliente = new Cliente();
 
         // Mapeamento dos campos obrigatórios da entidade Usuarios
         cliente.setNomeCompleto(request.nomeCompleto());
         cliente.setEmail(request.email());
-        cliente.setSenha(request.senha());
         cliente.setCpf(request.cpf());
         cliente.setRole(UserRole.CLIENTE);
 
@@ -50,19 +56,40 @@ public class ClienteService {
         cliente.setCargo(request.cargo());
         cliente.setEmpresaAtual(request.empresaAtual());
         cliente.setProfissao(request.profissao());
-        cliente.setSalarioMensal(request.salarioMensal());
+        cliente.setRendaMensal(request.rendaMensal());
         cliente.setTempoEmprego(request.tempoEmprego());
         cliente.setPatrimonioEstimado(request.patrimonioEstimado());
 
         // Mapeamento dos objetos aninhados (Endereco e Telefone)
         Endereco endereco = new Endereco();
+
+        // Inicia a lógica com os dados do ViaCEP
+        ViaCepResponse viaCepResponse = viaCepService.buscarEnderecoPorCep(request.cep());
+
         endereco.setCep(request.cep());
-        endereco.setLogradouro(request.logradouro());
-        endereco.setComplemento(request.complemento());
-        endereco.setCidade(request.cidade());
-        endereco.setEstado(request.uf());
-        endereco.setTipoEndereco(request.tipoEndereco());
+        endereco.setLogradouro(viaCepResponse.logradouro());
+        endereco.setCidade(viaCepResponse.localidade());
+        endereco.setEstado(viaCepResponse.uf());
+        endereco.setBairro(viaCepResponse.bairro());
+
+        // Prioriza a entrada do usuário se ela existir
+        if (request.logradouro() != null && !request.logradouro().isBlank()) {
+            endereco.setLogradouro(request.logradouro());
+        }
+        if (request.cidade() != null && !request.cidade().isBlank()) {
+            endereco.setCidade(request.cidade());
+        }
+        if (request.uf() != null && !request.uf().isBlank()) {
+            endereco.setEstado(request.uf());
+        }
+        if (request.bairro() != null && !request.uf().isBlank()) {
+            endereco.setBairro(request.bairro());
+        }
+
+        // Estes campos são fornecidos pelo usuário e não pelo ViaCEP
         endereco.setNumero(request.numero());
+        endereco.setComplemento(request.complemento());
+        endereco.setTipoEndereco(request.tipoEndereco());
         endereco.setCliente(cliente);
         cliente.getEnderecos().add(endereco);
 
@@ -79,6 +106,12 @@ public class ClienteService {
 
         cliente.setGerente(gerenteAssociado);
 
+        SegmentoCliente segmento = contaService.definirSegmentoCliente(
+                request.rendaMensal(),
+                request.patrimonioEstimado()
+        );
+        cliente.setSegmentoCliente(segmento);
+
         clienteRepository.save(cliente);
         return mapToClienteResponse(cliente);
     }
@@ -86,7 +119,6 @@ public class ClienteService {
     //Busca um cliente específico usando o ID como referência
     @Transactional(readOnly = true)
     public ClienteResponse buscarPorId(Long id) {
-
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente digitado não encontrado. ID: " + id));
         return mapToClienteResponse(cliente);
@@ -95,7 +127,6 @@ public class ClienteService {
     //Lista todos os clientes
     @Transactional(readOnly = true)
     public List<ClienteResponse> listarTodos() {
-
         List<Cliente> clientes = clienteRepository.findAll();
         return clientes.stream()
                 .map(this::mapToClienteResponse)
@@ -105,26 +136,99 @@ public class ClienteService {
     // Atualiza um cliente específico
     @Transactional
     public ClienteResponse atualizar(Long id, ClienteUpdateRequest request) {
-
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontrado("ID de cliente não encontrado. ID: " + id));
-        clienteExistente.setNomeCompleto(request.nomeCompleto());
-        clienteExistente.setEmail(request.email());
+
+        // Atualiza os campos de Cliente se não forem nulos
+        if (request.nomeCompleto() != null) {
+            clienteExistente.setNomeCompleto(request.nomeCompleto());
+        }
+        if (request.email() != null) {
+            clienteExistente.setEmail(request.email());
+        }
+        if (request.rg() != null) {
+            clienteExistente.setRg(request.rg());
+        }
+        if (request.estadoCivil() != null) {
+            clienteExistente.setEstadoCivil(request.estadoCivil());
+        }
+        if (request.nomeSocial() != null) {
+            clienteExistente.setNomeSocial(request.nomeSocial());
+        }
+        if (request.profissao() != null) {
+            clienteExistente.setProfissao(request.profissao());
+        }
+        if (request.empresaAtual() != null) {
+            clienteExistente.setEmpresaAtual(request.empresaAtual());
+        }
+        if (request.cargo() != null) {
+            clienteExistente.setCargo(request.cargo());
+        }
+        if (request.rendaMensal() != null) {
+            clienteExistente.setRendaMensal(request.rendaMensal());
+        }
+        if (request.tempoEmprego() != null) {
+            clienteExistente.setTempoEmprego(request.tempoEmprego());
+        }
+        if (request.patrimonioEstimado() != null) {
+            clienteExistente.setPatrimonioEstimado(request.patrimonioEstimado());
+        }
+        if (request.possuiRestricoesBancarias() != null) {
+            clienteExistente.setPossuiRestricoesBancarias(request.possuiRestricoesBancarias());
+        }
+        if (request.ePpe() != null) {
+            clienteExistente.setEPpe(request.ePpe());
+        }
+
+        // Atualiza os campos aninhados do Telefone
+        if (clienteExistente.getTelefone() == null) {
+            clienteExistente.setTelefone(new Telefone());
+        }
+        if (request.ddi() != null) {
+            clienteExistente.getTelefone().setDdi(request.ddi());
+        }
+        if (request.ddd() != null) {
+            clienteExistente.getTelefone().setDdd(request.ddd());
+        }
+        if (request.numeroTelefone() != null) {
+            clienteExistente.getTelefone().setNumero(request.numeroTelefone());
+        }
+        if (request.tipoTelefone() != null) {
+            clienteExistente.getTelefone().setTipoTelefone(request.tipoTelefone());
+        }
+
+        // Lógica para atualizar a lista de Endereços
+        if (request.enderecos() != null) {
+            // Limpa a lista existente de endereços para evitar duplicidade
+            clienteExistente.getEnderecos().clear();
+            for (EnderecoRequest enderecoRequest : request.enderecos()) {
+                Endereco novoEndereco = new Endereco();
+                novoEndereco.setCep(enderecoRequest.cep());
+                novoEndereco.setLogradouro(enderecoRequest.logradouro());
+                novoEndereco.setNumero(enderecoRequest.numero());
+                novoEndereco.setComplemento(enderecoRequest.complemento());
+                novoEndereco.setCidade(enderecoRequest.cidade()); // Atribui a cidade
+                novoEndereco.setEstado(enderecoRequest.estado());
+                novoEndereco.setTipoEndereco(enderecoRequest.tipoEndereco());
+                novoEndereco.setCliente(clienteExistente);
+                clienteExistente.getEnderecos().add(novoEndereco);
+            }
+        }
         Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
         return mapToClienteResponse(clienteAtualizado);
     }
+
     //Deleta um cliente
     @Transactional
     public void deletar(Long id) {
-
         if (!clienteRepository.existsById(id)) {
             throw new RecursoNaoEncontrado("ID de cliente não encontrado. ID: " + id);
         }
         clienteRepository.deleteById(id);
     }
+
     // Faz o trabalho de mapear os campos da entidade para o DTO de resposta
     private ClienteResponse mapToClienteResponse(Cliente cliente) {
-
         return new ClienteResponse(
                 cliente.getId(),
                 cliente.getNomeCompleto(),
@@ -140,7 +244,7 @@ public class ClienteService {
                 cliente.getProfissao(),
                 cliente.getEmpresaAtual(),
                 cliente.getCargo(),
-                cliente.getSalarioMensal(),
+                cliente.getRendaMensal(),
                 cliente.getTempoEmprego(),
                 cliente.getPatrimonioEstimado(),
                 cliente.getPossuiRestricoesBancarias(),
@@ -151,11 +255,12 @@ public class ClienteService {
                                 endereco.getIdEndereco(),
                                 endereco.getCep(),
                                 endereco.getLogradouro(),
+                                endereco.getBairro(),
+                                endereco.getNumero(),
                                 endereco.getComplemento(),
                                 endereco.getCidade(),
                                 endereco.getEstado(),
                                 endereco.getTipoEndereco(),
-                                endereco.getNumero(),
                                 endereco.getCliente().getId()
                         ))
                         .toList(),

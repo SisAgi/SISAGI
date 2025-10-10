@@ -8,7 +8,9 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -53,8 +55,8 @@ public class Cliente extends Usuarios {
     @Column(length = 100)
     private String cargo;
 
-    @Column(name = "salario_mensal", precision = 10, scale = 2)
-    private BigDecimal salarioMensal;
+    @Column(name = "renda_mensal", precision = 10, scale = 2)
+    private BigDecimal rendaMensal;
 
     @Column(name = "tempo_emprego")
     private Integer tempoEmprego;
@@ -69,7 +71,7 @@ public class Cliente extends Usuarios {
     private Boolean ePpe;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "segmento_cliente", nullable = true) // <-- Mude para 'true'
+    @Column(name = "segmento_cliente", nullable = true)
     private SegmentoCliente segmentoCliente;
 
     // Classe embutida para telefone
@@ -84,4 +86,8 @@ public class Cliente extends Usuarios {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gerente_id")
     private Gerente gerente;
+
+    // Relacionamento com Conta
+    @ManyToMany(mappedBy = "titulares")
+    private Set<Conta> contas = new HashSet<>();
 }

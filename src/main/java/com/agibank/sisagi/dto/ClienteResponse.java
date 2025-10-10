@@ -21,13 +21,13 @@ public record ClienteResponse(
         String profissao,
         String empresaAtual,
         String cargo,
-        BigDecimal salarioMensal,
+        BigDecimal rendaMensal,
         Integer tempoEmprego,
         BigDecimal patrimonioEstimado,
         Boolean possuiRestricoesBancarias,
         Boolean ePpe,
         UserRole role,
         List<EnderecoResponse> enderecos,
-        TelefoneResponse telefoneResponse
+        TelefoneResponse telefone
 ) {
 }

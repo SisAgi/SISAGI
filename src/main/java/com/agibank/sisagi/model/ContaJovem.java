@@ -15,5 +15,5 @@ public class ContaJovem extends Conta {
     // Atributo específico da conta jovem
     @OneToOne
     @JoinColumn(name = "conta_responsavel_id", nullable = true)
-    private Conta responsavelId;
+    private Conta responsavelContaId;
 }

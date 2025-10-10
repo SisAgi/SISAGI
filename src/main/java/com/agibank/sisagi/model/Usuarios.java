@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 @MappedSuperclass // Superclasse que funciona como um molde para cliente e gerente
 public abstract class Usuarios {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,11 +22,7 @@ public abstract class Usuarios {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String senha;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
-
 }
