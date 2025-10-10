@@ -116,15 +116,17 @@ public class ContaService {
 
     // Desativa a conta impedindo que a mesma realize transações, porém ainda estando presente no banco de dados como forma de consulta
     @Transactional
-    public void desativarConta(Long Id) {
+    public Object desativarConta(String numeroConta) {
 
-        Conta conta = contaRepository.findById(Id)
+        Conta conta = contaRepository.findByNumeroConta(numeroConta)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
         if (conta.getSaldo().compareTo(BigDecimal.ZERO) != 0 ) {
             throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
         }
         conta.setStatusConta(StatusConta.EXCLUIDA);
         contaRepository.save(conta);
+
+        return mapearContaParaResponse(conta);
     }
 
     @Transactional(readOnly = true)
