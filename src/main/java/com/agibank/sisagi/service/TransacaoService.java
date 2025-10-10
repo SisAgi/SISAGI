@@ -2,9 +2,12 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.TransacaoRequest;
 import com.agibank.sisagi.dto.TransacaoResponse;
+import com.agibank.sisagi.exception.ContaInvalida;
+import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.model.Conta;
 import com.agibank.sisagi.model.Gerente;
 import com.agibank.sisagi.model.Transacao;
+import com.agibank.sisagi.model.enums.StatusConta;
 import com.agibank.sisagi.model.enums.TipoTransacao;
 import com.agibank.sisagi.repository.ContaRepository;
 import com.agibank.sisagi.repository.GerenteRepository;
@@ -42,8 +45,16 @@ public class TransacaoService {
         Conta contaOrigem = contaRepository.findById(dto.contaOrigemId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta de origem não encontrada."));
 
+        if (contaOrigem.getStatusConta() == StatusConta.EXCLUIDA){
+            throw new ContaInvalida("Conta origem está excluida");
+        }
+
         Conta contaDestino = contaRepository.findById(dto.contaDestinoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta de destino não encontrada."));
+
+        if (contaDestino.getStatusConta() == StatusConta.EXCLUIDA){
+            throw new ContaInvalida("Conta destino está excluida");
+        }
 
         String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
 
