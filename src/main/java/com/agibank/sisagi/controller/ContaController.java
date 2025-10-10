@@ -44,4 +44,10 @@ public class ContaController {
         Object contaResponse = contaService.buscarDetalhesConta(contaId);
         return ResponseEntity.ok(contaResponse);
     }
+
+    @GetMapping("/buscar-numero/{numeroConta}")
+    public ResponseEntity<Object> getContaByNumeroConta(@PathVariable String numeroConta) {
+        Object contaResponse = contaService.buscarDetalhesContaPorNumero(numeroConta);
+        return ResponseEntity.ok(contaResponse);
+    }
 }

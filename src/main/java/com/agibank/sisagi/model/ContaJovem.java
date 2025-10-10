@@ -12,10 +12,8 @@ import lombok.*;
 @Builder
 public class ContaJovem extends Conta {
 
-    // Relação com o ID do responsável titular
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "conta_responsavel_id", referencedColumnName = "id_conta", nullable = false)
-
     // Atributo específico da conta jovem
+    @OneToOne
+    @JoinColumn(name = "conta_responsavel_id", nullable = true)
     private Conta responsavelId;
 }

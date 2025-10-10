@@ -4,6 +4,7 @@ import com.agibank.sisagi.dto.*;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.exception.SaldoInvalido;
 import com.agibank.sisagi.model.*;
+import com.agibank.sisagi.model.enums.SegmentoCliente;
 import com.agibank.sisagi.model.enums.StatusConta;
 import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.ContaRepository;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,21 +43,32 @@ public class ContaService {
         contaRepository.save(contaCorrente);
         return maptoContaCorrenteResponse(contaCorrente);
     }
+
     // Cria uma conta poupança
     @Transactional
     public ContaPoupResponse criarContaPoupanca(ContaPoupRequest request) {
 
-        List<Cliente> titulares = clienteRepository.findAllById(request.titularIds());
-        if (titulares.size() != request.titularIds().size()) {
-            throw new IllegalArgumentException("Um ou mais IDs de clientes são inválidos");
-        }
+        List<Cliente> titulares = request.titularCpfs().stream()
+                .map(cpf -> clienteRepository.findByCpf(cpf)
+                        .orElseThrow(() -> new RecursoNaoEncontrado("Cliente não encontrado para o CPF: " + cpf)))
+                .collect(Collectors.toList());
+
+        Cliente titularPrincipal = titulares.get(0);
+        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getSalarioMensal(), titularPrincipal.getPatrimonioEstimado());
+        BigDecimal taxaManutencao = definirTaxaManutencao(segmento);
+
         ContaPoupanca contaPoupanca = new ContaPoupanca();
-        contaPoupanca.setNumeroConta(request.numeroConta());
+        contaPoupanca.setNumeroConta(gerarNumeroContaUnico()); // Nova chamada
         contaPoupanca.setSaldo(BigDecimal.ZERO);
         contaPoupanca.setAgencia(request.agencia());
+        contaPoupanca.setSenha(request.senha());
         contaPoupanca.setRendimento(contaPoupanca.getRendimento());
         contaPoupanca.setTitulares(new HashSet<>(titulares));
         contaPoupanca.setStatusConta(StatusConta.ATIVA);
+        contaPoupanca.setDataAbertura(java.time.LocalDate.now());
+        contaPoupanca.setSegmentoCliente(segmento);
+        contaPoupanca.setTaxaManutencao(taxaManutencao);
+
         contaRepository.save(contaPoupanca);
         return maptoContaPoupancaResponse(contaPoupanca);
     }
@@ -107,7 +120,7 @@ public class ContaService {
 
         Conta conta = contaRepository.findById(Id)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
-        if (conta.getSaldo().compareTo(BigDecimal.ZERO) != 0 ) {
+        if (conta.getSaldo().compareTo(BigDecimal.ZERO) != 0) {
             throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
         }
         conta.setStatusConta(StatusConta.EXCLUIDA);
@@ -120,6 +133,24 @@ public class ContaService {
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
     }
 
+    @Transactional(readOnly = true)
+    public Object buscarDetalhesContaPorNumero(String numeroConta) {
+        Conta conta = contaRepository.findByNumeroConta(numeroConta)
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada com número: " + numeroConta));
+
+        if (conta instanceof ContaCorrente cc) {
+            return maptoContaCorrenteResponse(cc);
+        } else if (conta instanceof ContaPoupanca pp) {
+            return maptoContaPoupancaResponse(pp);
+        } else if (conta instanceof ContaJovem cj) {
+            return maptoContaJovemResponse(cj);
+        } else if (conta instanceof ContaGlobal cg) {
+            return maptoContaGlobalResponse(cg);
+        }
+
+        throw new RecursoNaoEncontrado("Tipo de conta desconhecido para o número: " + numeroConta);
+    }
+
     @Transactional
     public ContaUpdateRequest atualizarConta(Long contaId, ContaUpdateRequest request) {
         Conta conta = contaRepository.findById(contaId)
@@ -127,6 +158,43 @@ public class ContaService {
         conta.setAgencia(request.agencia());
         Conta contaAtualizada = contaRepository.save(conta);
         return new ContaUpdateRequest(contaAtualizada.getAgencia(), contaAtualizada.getNumeroConta(), request.cpf());
+    }
+
+    private String gerarNumeroContaUnico() {
+        String numeroContaGerado;
+        do {
+            // Gera um número aleatório de 6 dígitos
+            long numeroAleatorio = ThreadLocalRandom.current().nextLong(100000, 1000000);
+            // Formata o número com um dígito verificador simples (ex: último dígito)
+            int digitoVerificador = (int) (numeroAleatorio % 10);
+            numeroContaGerado = String.format("%06d-%d", numeroAleatorio, digitoVerificador);
+        } while (contaRepository.findByNumeroConta(numeroContaGerado).isPresent());
+        return numeroContaGerado;
+    }
+
+    private SegmentoCliente definirSegmentoCliente(BigDecimal rendaMensal, BigDecimal patrimonio) {
+        if (rendaMensal != null && rendaMensal.compareTo(new BigDecimal("10000")) > 0 ||
+                patrimonio != null && patrimonio.compareTo(new BigDecimal("200000")) > 0) {
+            return SegmentoCliente.PREMIUM;
+        } else if (rendaMensal != null && rendaMensal.compareTo(new BigDecimal("3000")) > 0 ||
+                patrimonio != null && patrimonio.compareTo(new BigDecimal("100000")) >= 0) {
+            return SegmentoCliente.ADVANCED;
+        } else {
+            return SegmentoCliente.CLASS;
+        }
+    }
+
+    private BigDecimal definirTaxaManutencao(SegmentoCliente segmento) {
+        switch (segmento) {
+            case CLASS:
+                return new BigDecimal("3.90");
+            case ADVANCED:
+                return new BigDecimal("8.90");
+            case PREMIUM:
+                return new BigDecimal("19.90");
+            default:
+                return BigDecimal.ZERO; // Valor padrão para casos inesperados
+        }
     }
 
     public ContaCorrenteResponse maptoContaCorrenteResponse(ContaCorrente conta) {
@@ -146,8 +214,8 @@ public class ContaService {
 
     // Tem a função de mapear os campos da entidade conta poupança para o seu respectivo DTO de resposta
     public ContaPoupResponse maptoContaPoupancaResponse(ContaPoupanca conta) {
-        Set<Long> titularIds = conta.getTitulares().stream()
-                .map(Cliente::getId)
+        Set<String> titularCpfs = conta.getTitulares().stream()
+                .map(Cliente::getCpf)
                 .collect(Collectors.toSet());
         return new ContaPoupResponse(
                 conta.getId(),
@@ -155,10 +223,11 @@ public class ContaService {
                 conta.getAgencia(),
                 conta.getSaldo(),
                 conta.getDataAniversario(),
-                conta.getRendimento(),
+                BigDecimal.valueOf(conta.getRendimento()),
                 getTipoConta(conta),
-                titularIds,
-                conta.getStatusConta());
+                titularCpfs,
+                conta.getStatusConta(),
+                conta.getSegmentoCliente());
     }
 
     // Tem a função de mapear os campos da entidade conta jovem para o seu respectivo DTO de resposta

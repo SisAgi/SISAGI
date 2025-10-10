@@ -1,6 +1,7 @@
 package com.agibank.sisagi.model;
 
 import com.agibank.sisagi.exception.SaldoInsuficienteException;
+import com.agibank.sisagi.model.enums.SegmentoCliente;
 import com.agibank.sisagi.model.enums.StatusConta;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,8 +43,8 @@ public abstract class Conta {
     @Column(name = "data_abertura", nullable = false) // Data de abertura da conta
     private LocalDate dataAbertura;
 
-    @Column(name = "segmento_cliente", nullable = false, length = 50) // Segmento que indica o padrão de benefícios do cliente
-    private String segmentoCliente;
+    @Column(name = "segmento_cliente", nullable = false) // Segmento que indica o padrão de benefícios do cliente
+    private SegmentoCliente segmentoCliente;
 
     @Column(name = "taxa_manutencao", nullable = false, precision = 10, scale = 2) // Taxa de manutenção sob os custos mensais de operação de conta
     private BigDecimal taxaManutencao;

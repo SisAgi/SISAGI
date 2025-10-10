@@ -1,5 +1,6 @@
 package com.agibank.sisagi.model;
 
+import com.agibank.sisagi.model.enums.SegmentoCliente;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,11 +15,6 @@ import java.util.List;
 @Setter
 @Table(name = "clientes")
 public class Cliente extends Usuarios {
-
-    // Relacionamento com Gerente
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gerente_id")
-    private Gerente gerente;
 
     //Atributos para o cadastro completo do cliente
     @Column(name = "nome_completo", nullable = false, length = 150)
@@ -72,6 +68,10 @@ public class Cliente extends Usuarios {
     @Column(name = "e_ppe", nullable = false)
     private Boolean ePpe;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "segmento_cliente", nullable = false)
+    private SegmentoCliente segmentoCliente;
+
     // Classe embutida para telefone
     @Embedded
     private Telefone telefone;
@@ -79,4 +79,9 @@ public class Cliente extends Usuarios {
     // Relacionamento com Endereco
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Endereco> enderecos = new ArrayList<>();
+
+    // Relacionamento com Gerente
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gerente_id")
+    private Gerente gerente;
 }
