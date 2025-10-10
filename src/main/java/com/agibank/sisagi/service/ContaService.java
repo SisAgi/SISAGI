@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,20 +28,32 @@ public class ContaService {
     // Cria uma conta poupança
     @Transactional
     public ContaCorrenteResponse criarContaCorrente(ContaCorrenteRequest request) {
+        // Busca os titulares
         List<Cliente> titulares = clienteRepository.findAllById(request.titularIds());
         if (titulares.size() != request.titularIds().size()) {
             throw new IllegalArgumentException("Um ou mais IDs de clientes são inválidos");
         }
+
+        // Cria a conta corrente
         ContaCorrente contaCorrente = new ContaCorrente();
-        contaCorrente.setNumeroConta(request.numeroConta());
+        contaCorrente.setNumeroConta(gerarNumeroConta());
+        contaCorrente.setAgencia("201");
         contaCorrente.setSaldo(BigDecimal.ZERO);
-        contaCorrente.setAgencia(request.agencia());
         contaCorrente.setLimiteChequeEspecial(request.limiteChequeEspecial());
         contaCorrente.setTitulares(new HashSet<>(titulares));
         contaCorrente.setStatusConta(StatusConta.ATIVA);
+        contaCorrente.setDataAbertura(LocalDate.now());
+        contaCorrente.setSenha(request.senha());
+        contaCorrente.setSegmentoCliente("Padrão");
+        contaCorrente.setTaxaManutencao(BigDecimal.ZERO);
+
+
+
         contaRepository.save(contaCorrente);
+
         return maptoContaCorrenteResponse(contaCorrente);
     }
+
     // Cria uma conta poupança
     @Transactional
     public ContaPoupResponse criarContaPoupanca(ContaPoupRequest request) {
@@ -128,6 +141,33 @@ public class ContaService {
         Conta contaAtualizada = contaRepository.save(conta);
         return new ContaUpdateRequest(contaAtualizada.getAgencia(), contaAtualizada.getNumeroConta(), request.cpf());
     }
+
+    @Transactional(readOnly = true)
+    public List<Conta> listarTodasContas() {
+        return contaRepository.findAll();
+    }
+
+    // Método genérico para mapear qualquer tipo de conta para seu DTO
+    public Object mapearContaParaResponse(Conta conta) {
+        if (conta instanceof ContaCorrente cc) {
+            return maptoContaCorrenteResponse(cc);
+        } else if (conta instanceof ContaPoupanca cp) {
+            return maptoContaPoupancaResponse(cp);
+        } else if (conta instanceof ContaJovem cj) {
+            return maptoContaJovemResponse(cj);
+        } else if (conta instanceof ContaGlobal cg) {
+            return maptoContaGlobalResponse(cg);
+        }
+        return null;
+    }
+
+
+    // ---------- METODO AUXILIAR: GERAR NÚMERO DE CONTA ----------
+    private String gerarNumeroConta() {
+        long ultimaContaId = contaRepository.count() + 1;
+        return String.format("%06d-%d", ultimaContaId, (int) (Math.random() * 10));
+    }
+
 
     public ContaCorrenteResponse maptoContaCorrenteResponse(ContaCorrente conta) {
         Set<Long> titularIds = conta.getTitulares().stream()
