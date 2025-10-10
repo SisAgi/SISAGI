@@ -4,7 +4,6 @@ import com.agibank.sisagi.model.enums.TipoServico;
 import jakarta.validation.constraints.*;
 
 public record DebitoAutomaticoRequest(
-
         @NotNull(message = "O ID da conta não pode ser nulo.")
         Long contaId,
 
@@ -24,4 +23,6 @@ public record DebitoAutomaticoRequest(
         @NotBlank(message = "O identificador do convênio é obrigatório.")
         String identificadorConvenio,
 
-        String descricao){} //Descrição pode ser opcional
+        String descricao //Descrição pode ser opcional
+) {
+}

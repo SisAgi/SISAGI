@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record ClienteRequest(
-
         @NotBlank(message = "Nome é um campo obrigatório")
         @Pattern(regexp = "^[A-Za-zÀ-ú ]+$", message = "Nome deve conter apenas letras e espaços")
         String nomeCompleto, // Corrigido para corresponder à entidade
@@ -86,6 +85,5 @@ public record ClienteRequest(
 
         @NotNull(message = "A Role é um campo obrigatório")
         String role // A role (papel) pode ser um enum, mas como string é mais simples para o JSON
-
 ) {
 }

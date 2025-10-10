@@ -13,5 +13,6 @@ public record ContaCorrenteResponse(
         BigDecimal limiteChequeEspecial,
         Set<String> titularCpfs,
         StatusConta statusConta,
-        String tipoConta) {
+        String tipoConta
+) {
 }

@@ -18,4 +18,5 @@ public record ContaJovemRequest(
 
         @NotNull(message = "O ID da conta do responsável é obrigatório")
         Long responsavelId
-) {}
+) {
+}

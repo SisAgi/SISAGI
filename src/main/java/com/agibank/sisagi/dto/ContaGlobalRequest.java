@@ -15,4 +15,5 @@ public record ContaGlobalRequest(
 
         @NotBlank(message = "A senha é obrigatória")
         String senha
-) {}
+) {
+}

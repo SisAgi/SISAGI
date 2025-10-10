@@ -1,7 +1,6 @@
 package com.agibank.sisagi.dto;
 
 public record EnderecoRequest(
-
         String cep,
         String logradouro,
         String numero,
@@ -9,4 +8,6 @@ public record EnderecoRequest(
         String cidade,
         String estado,
         String tipoEndereco,
-        Long clienteId){}
+        Long clienteId
+) {
+}

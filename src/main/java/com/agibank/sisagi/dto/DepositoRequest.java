@@ -3,6 +3,7 @@ package com.agibank.sisagi.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 
 public record DepositoRequest(
@@ -13,4 +14,6 @@ public record DepositoRequest(
         @NotNull(message = "O ID da conta é obrigatório.")
         Long contaId,
 
-        String motivoMovimentacao) {}
+        String motivoMovimentacao
+) {
+}
