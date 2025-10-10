@@ -19,3 +19,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
+
+springdoc:
+  api-docs:
+    path: /api-docs # URL para o JSON da especificação OpenAPI
+  swagger-ui:
+    path: /swagger-ui.html # URL para a interface do Swagger
+  info:
+    title: SisAgi - API de Gerenciamento Bancário
+    description: "API RESTful para o sistema SisAgi, com operações para clientes, gerentes, contas e transações."
+    version: v0.0.1
