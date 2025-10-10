@@ -16,6 +16,6 @@ import java.math.BigDecimal;
 @Builder
 public class ContaCorrente extends Conta {
     //Atributo específico da conta corrente
-    @Column(name = "limite_cheque_especial", nullable = true, precision = 15, scale = 2)
+    @Column(name = "limite_cheque_especial", nullable = false, precision = 15, scale = 2)
     private BigDecimal limiteChequeEspecial;
 }

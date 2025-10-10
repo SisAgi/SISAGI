@@ -1,11 +1,13 @@
 package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.exception.DebitosAtivos;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.exception.SaldoInvalido;
 import com.agibank.sisagi.model.*;
 import com.agibank.sisagi.model.enums.SegmentoCliente;
 import com.agibank.sisagi.model.enums.StatusConta;
+import com.agibank.sisagi.model.enums.StatusDebito;
 import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.ContaRepository;
 import jakarta.persistence.DiscriminatorValue;
@@ -158,14 +160,25 @@ public class ContaService {
 
     // Desativa a conta impedindo que a mesma realize transações, porém ainda estando presente no banco de dados como forma de consulta
     @Transactional
-    public void desativarConta(Long Id) {
-        Conta conta = contaRepository.findById(Id)
+    public Object desativarConta(String numeroConta) {
+        Conta conta = contaRepository.findByNumeroConta(numeroConta)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
         if (conta.getSaldo().compareTo(BigDecimal.ZERO) != 0) {
             throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
         }
+
+        List<DebitoAutomatico> debitosAtivos = conta.getDebitoAutomaticos()
+                .stream()
+                .filter(n-> n.getStatus().equals(StatusDebito.ATIVO))
+                .toList();
+        if (debitosAtivos != null){
+            throw new DebitosAtivos("Conta possui débitos automáticos ativos");
+        }
+
         conta.setStatusConta(StatusConta.EXCLUIDA);
         contaRepository.save(conta);
+
+        return mapearContaParaResponse(conta);
     }
 
     @Transactional(readOnly = true)
@@ -336,5 +349,11 @@ public class ContaService {
                 titularCpfs,
                 conta.getStatusConta(),
                 getTipoConta(conta));
+    }
+
+    public BigDecimal consultarSaldo(String numeroConta){
+        Conta conta = contaRepository.findByNumeroConta(numeroConta)
+                .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
+        return conta.getSaldo();
     }
 }

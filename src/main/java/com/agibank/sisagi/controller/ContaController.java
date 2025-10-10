@@ -62,4 +62,13 @@ public class ContaController {
         Object contaResponse = contaService.buscarDetalhesContaPorNumero(numeroConta);
         return ResponseEntity.ok(contaResponse);
     }
+
+    @PutMapping("/desativar/{numeroConta}")
+    public ResponseEntity<Object> desativarConta(@PathVariable String numeroConta) throws Exception {
+       Object conta = contaService.desativarConta(numeroConta);
+       if (conta == null){
+           throw new Exception();
+       }
+       return ResponseEntity.ok(conta);
+    }
 }

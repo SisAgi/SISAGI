@@ -2,8 +2,10 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.DebitoAutomaticoRequest;
 import com.agibank.sisagi.dto.DebitoAutomaticoResponse;
+import com.agibank.sisagi.exception.ContaInvalida;
 import com.agibank.sisagi.model.Conta;
 import com.agibank.sisagi.model.DebitoAutomatico;
+import com.agibank.sisagi.model.enums.StatusConta;
 import com.agibank.sisagi.model.enums.StatusDebito;
 import com.agibank.sisagi.repository.ContaRepository;
 import com.agibank.sisagi.repository.DebitoAutomaticoRepository;
@@ -29,7 +31,9 @@ public class DebitoAutomaticoService {
 
         Conta conta = contaRepository.findById(request.contaId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada com ID: " + request.contaId()));
-
+        if (conta.getStatusConta().equals(StatusConta.EXCLUIDA)){
+            throw new ContaInvalida("Conta excluída não é possível adicionar um débito automático.");
+        }
         // Verifica se não existe duplicidade
         if (debitoRepository.findByIdentificadorConvenio(request.identificadorConvenio()) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Já existe um débito automático cadastrado para este identificador de convênio.");
@@ -42,6 +46,7 @@ public class DebitoAutomaticoService {
         debito.setTipoServico(request.tipoServico());
         debito.setIdentificadorConvenio(request.identificadorConvenio());
         debito.setDescricao(request.descricao());
+        debito.setFrequencia(request.frequencia());
         debito.setStatus(StatusDebito.ATIVO);
 
         DebitoAutomatico salvo = debitoRepository.save(debito);

@@ -20,7 +20,7 @@ public class Transacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ns_unico", nullable = false, unique = true, length = 32) // Gera um número sequencial único (NSU) para cada transação
+    @Column(name = "ns_unico", nullable = false, unique = false, length = 32) // Gera um número sequencial único (NSU) para cada transação
     private String nsUnico;
 
     @Column(name = "tipo_operacao", nullable = false) // Usado para exibir o tipo especifíco de transação
