@@ -128,9 +128,10 @@ public class ContaService {
     }
 
     @Transactional(readOnly = true)
-    public void buscarContaPorId(Long contaId) {
+    public Object buscarContaPorId(Long contaId) {
         Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
+        return mapearContaParaResponse(conta);
     }
 
     @Transactional
@@ -158,7 +159,7 @@ public class ContaService {
         } else if (conta instanceof ContaGlobal cg) {
             return maptoContaGlobalResponse(cg);
         }
-        return null;
+        return new RecursoNaoEncontrado("Tipo de conta desconhecido");
     }
 
 
@@ -245,6 +246,8 @@ public class ContaService {
             return maptoContaPoupancaResponse(pp);
         } else if (conta instanceof ContaJovem cj) {
             return maptoContaJovemResponse(cj);
+        }else if (conta instanceof ContaGlobal cg){
+            return maptoContaGlobalResponse(cg);
         }
         throw new RecursoNaoEncontrado("Tipo de conta desconhecido para ID: " + contaId);
     }
