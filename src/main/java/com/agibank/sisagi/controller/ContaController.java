@@ -1,7 +1,9 @@
 package com.agibank.sisagi.controller;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.model.Conta;
+import com.agibank.sisagi.repository.ContaRepository;
 import com.agibank.sisagi.service.ContaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContaController {
     private final ContaService contaService;
+
+    private final ContaRepository contaRepository;
 
     // Endpoint para a criação de uma nova conta-corrente
     @PostMapping("/corrente")
@@ -55,5 +59,14 @@ public class ContaController {
                 .map(contaService::mapearContaParaResponse)
                 .toList();
         return ResponseEntity.ok(contasResponse);
+    }
+
+    @PutMapping("/desativar/{numeroConta}")
+    public ResponseEntity<Object> desativarConta(@PathVariable String numeroConta) throws Exception {
+       Object conta = contaService.desativarConta(numeroConta);
+       if (conta == null){
+           throw new Exception();
+       }
+       return ResponseEntity.ok(conta);
     }
 }
