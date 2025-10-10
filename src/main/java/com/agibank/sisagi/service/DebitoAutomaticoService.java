@@ -42,6 +42,7 @@ public class DebitoAutomaticoService {
         debito.setTipoServico(request.tipoServico());
         debito.setIdentificadorConvenio(request.identificadorConvenio());
         debito.setDescricao(request.descricao());
+        debito.setFrequencia(request.frequencia());
         debito.setStatus(StatusDebito.ATIVO);
 
         DebitoAutomatico salvo = debitoRepository.save(debito);
