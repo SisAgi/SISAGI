@@ -96,4 +96,13 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
+
+    @ExceptionHandler(DebitosAtivos.class)
+    public ResponseEntity<ErrorResponse> handleDebitosAtivos(DebitosAtivos ex, HttpServletRequest request){
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 }
