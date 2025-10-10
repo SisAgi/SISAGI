@@ -1,33 +1,28 @@
 package com.agibank.sisagi.dto;
 
-import com.agibank.sisagi.model.enums.UserRole;
+import com.agibank.sisagi.model.enums.TipoTelefone;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
+// Este DTO pode incluir todos os campos que o gerente pode atualizar
 public record ClienteUpdateRequest(
-        Long id,
         String nomeCompleto,
         String email,
-        String cpf,
-        LocalDate dataNascimento,
         String rg,
-        LocalDate dataEmissaoDocumento,
-        String nomePai,
-        String nomeMae,
         String estadoCivil,
         String nomeSocial,
         String profissao,
         String empresaAtual,
         String cargo,
-        BigDecimal salarioMensal,
+        BigDecimal rendaMensal,
         Integer tempoEmprego,
         BigDecimal patrimonioEstimado,
         Boolean possuiRestricoesBancarias,
         Boolean ePpe,
-        UserRole role,
-        List<EnderecoResponse> enderecos,
-        TelefoneResponse telefoneResponse
-) {
-}
+        String ddi,
+        String ddd,
+        String numeroTelefone,
+        TipoTelefone tipoTelefone,
+        List<EnderecoRequest> enderecos
+) {}

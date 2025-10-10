@@ -1,5 +1,6 @@
 package com.agibank.sisagi.model;
 
+import com.agibank.sisagi.model.enums.FrequenciaDebito;
 import com.agibank.sisagi.model.enums.StatusDebito;
 import com.agibank.sisagi.model.enums.TipoServico;
 import jakarta.persistence.*;
@@ -29,8 +30,9 @@ public class DebitoAutomatico {
 
     private String descricao;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "frequencia", nullable = false)
-    private String frequencia;
+    private FrequenciaDebito frequencia;
 
     // O status da regra de débito (ATIVO, SUSPENSO, CANCELADO)
     @Enumerated(EnumType.STRING)

@@ -40,10 +40,10 @@ public class ContaService {
                 .toList();
 
         Cliente titularPrincipal = titulares.getFirst();
-        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getSalarioMensal(), titularPrincipal.getPatrimonioEstimado());
+        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getRendaMensal(), titularPrincipal.getPatrimonioEstimado());
         BigDecimal taxaManutencao = definirTaxaManutencao(segmento);
         BigDecimal limiteChequeEspecial = definirLimiteChequeEspecial(
-                titularPrincipal.getSalarioMensal(),
+                titularPrincipal.getRendaMensal(),
                 titularPrincipal.getPossuiRestricoesBancarias()
         );
 
@@ -74,7 +74,7 @@ public class ContaService {
                 .toList();
 
         Cliente titularPrincipal = titulares.getFirst();
-        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getSalarioMensal(), titularPrincipal.getPatrimonioEstimado());
+        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getRendaMensal(), titularPrincipal.getPatrimonioEstimado());
         BigDecimal taxaManutencao = definirTaxaManutencao(segmento);
 
         ContaPoupanca contaPoupanca = new ContaPoupanca();
@@ -96,27 +96,32 @@ public class ContaService {
     // Cria uma conta jovem
     @Transactional
     public ContaJovemResponse criarContaJovem(ContaJovemRequest request) {
-        // 1. Busca os clientes pelo CPF
+        // Busca o cliente responsável
+        Cliente responsavel = clienteRepository.findById(request.responsavelId())
+                .orElseThrow(() -> new RecursoNaoEncontrado("Cliente responsável não encontrado."));
+
+        Conta contaDoResponsavel = responsavel.getContas().stream()
+                .filter(c -> c instanceof ContaCorrente || c instanceof ContaPoupanca)
+                .findFirst()
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta do cliente responsável não encontrada."));
+
+        // Busca os clientes titulares pelo CPF
         List<Cliente> titulares = request.titularCpfs().stream()
                 .map(cpf -> clienteRepository.findByCpf(cpf)
                         .orElseThrow(() -> new RecursoNaoEncontrado("Cliente titular não encontrado para o CPF: " + cpf)))
                 .toList();
 
-        // 2. Busca o cliente responsável (ainda pelo ID, se o DTO não mudar)
-        Conta responsavel = contaRepository.findById(request.responsavelId())
-                .orElseThrow(() -> new RecursoNaoEncontrado("Conta do responsável não encontrada."));
-
         Cliente titularPrincipal = titulares.getFirst();
-        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getSalarioMensal(), titularPrincipal.getPatrimonioEstimado());
+        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getRendaMensal(), titularPrincipal.getPatrimonioEstimado());
         BigDecimal taxaManutencao = definirTaxaManutencao(segmento);
 
-        // 3. Cria e configura a Conta Jovem
+        // Cria e configura a Conta Jovem
         ContaJovem contaJovem = new ContaJovem();
         contaJovem.setNumeroConta(gerarNumeroContaUnico());
         contaJovem.setSaldo(BigDecimal.ZERO);
         contaJovem.setAgencia(request.agencia());
         contaJovem.setSenha(request.senha());
-        contaJovem.setResponsavelId(responsavel);
+        contaJovem.setResponsavelContaId(contaDoResponsavel); // <-- Corrected
         contaJovem.setTitulares(new HashSet<>(titulares));
         contaJovem.setStatusConta(StatusConta.ATIVA);
         contaJovem.setDataAbertura(LocalDate.now());
@@ -137,7 +142,7 @@ public class ContaService {
                 .toList();
 
         Cliente titularPrincipal = titulares.getFirst();
-        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getSalarioMensal(), titularPrincipal.getPatrimonioEstimado());
+        SegmentoCliente segmento = definirSegmentoCliente(titularPrincipal.getRendaMensal(), titularPrincipal.getPatrimonioEstimado());
         BigDecimal taxaManutencao = definirTaxaManutencao(segmento);
 
         // 2. Cria e configura a Conta Global
@@ -216,8 +221,7 @@ public class ContaService {
         return numeroContaGerado;
     }
 
-
-    private SegmentoCliente definirSegmentoCliente(BigDecimal rendaMensal, BigDecimal patrimonio) {
+    public SegmentoCliente definirSegmentoCliente(BigDecimal rendaMensal, BigDecimal patrimonio) {
         if (rendaMensal != null && rendaMensal.compareTo(new BigDecimal("10000")) > 0 ||
                 patrimonio != null && patrimonio.compareTo(new BigDecimal("200000")) > 0) {
             return SegmentoCliente.PREMIUM;
@@ -242,14 +246,14 @@ public class ContaService {
         }
     }
 
-    private BigDecimal definirLimiteChequeEspecial(BigDecimal salarioMensal, Boolean possuiRestricoes) {
+    private BigDecimal definirLimiteChequeEspecial(BigDecimal rendaMensal, Boolean possuiRestricoes) {
         if (possuiRestricoes != null && possuiRestricoes) {
             return BigDecimal.ZERO;
         }
 
-        if (salarioMensal != null && salarioMensal.compareTo(BigDecimal.ZERO) > 0) {
+        if (rendaMensal != null && rendaMensal.compareTo(BigDecimal.ZERO) > 0) {
             // Calcula 20% da renda: renda * 0.20
-            BigDecimal limite = salarioMensal.multiply(new BigDecimal("0.20"));
+            BigDecimal limite = rendaMensal.multiply(new BigDecimal("0.20"));
             return limite.setScale(2, RoundingMode.HALF_UP); // Arredonda para 2 casas decimais
         }
 
@@ -328,7 +332,7 @@ public class ContaService {
                 conta.getNumeroConta(),
                 conta.getAgencia(),
                 conta.getSaldo(),
-                conta.getResponsavelId().getId(),
+                conta.getResponsavelContaId().getId(),
                 titularCpfs,
                 conta.getStatusConta(),
                 getTipoConta(conta));

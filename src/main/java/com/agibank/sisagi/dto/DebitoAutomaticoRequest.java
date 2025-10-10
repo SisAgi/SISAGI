@@ -1,5 +1,6 @@
 package com.agibank.sisagi.dto;
 
+import com.agibank.sisagi.model.enums.FrequenciaDebito;
 import com.agibank.sisagi.model.enums.TipoServico;
 import jakarta.validation.constraints.*;
 
@@ -15,10 +16,8 @@ public record DebitoAutomaticoRequest(
         @NotNull(message = "O tipo de serviço é obrigatório.")
         TipoServico tipoServico,
 
-        @NotBlank
-        @Pattern(regexp = "SEMANAL|MENSAL|ANUAL",
-                message = "A frequência deve ser um dos seguintes valores: SEMANAL, MENSAL, ANUAL")
-        String frequencia,
+        @NotNull(message = "A frequência é obrigatória.")
+        FrequenciaDebito frequencia,
 
         @NotBlank(message = "O identificador do convênio é obrigatório.")
         String identificadorConvenio,

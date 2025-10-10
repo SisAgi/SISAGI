@@ -33,6 +33,7 @@ public class EnderecoService {
         Endereco endereco = new Endereco();
         endereco.setCep(viaCepData.cep());
         endereco.setLogradouro(viaCepData.logradouro());
+        endereco.setBairro(viaCepData.bairro());
         endereco.setNumero(request.numero()); // Usuário deve informar
         endereco.setComplemento(request.complemento()); // Usuário deve informar
         endereco.setCidade(viaCepData.localidade());
@@ -118,6 +119,7 @@ public class EnderecoService {
                 endereco.getIdEndereco(),
                 endereco.getCep(),
                 endereco.getLogradouro(),
+                endereco.getBairro(),
                 endereco.getNumero(),
                 endereco.getComplemento(),
                 endereco.getCidade(),

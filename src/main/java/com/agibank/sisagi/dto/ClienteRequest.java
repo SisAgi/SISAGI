@@ -10,11 +10,7 @@ import java.time.LocalDate;
 public record ClienteRequest(
         @NotBlank(message = "Nome é um campo obrigatório")
         @Pattern(regexp = "^[A-Za-zÀ-ú ]+$", message = "Nome deve conter apenas letras e espaços")
-        String nomeCompleto, // Corrigido para corresponder à entidade
-
-        @NotBlank(message = "Senha é um campo obrigatório")
-        @Size(min = 6, message = "Senha precisa ter no minimo 6 caracteres")
-        String senha,
+        String nomeCompleto,
 
         @NotBlank(message = "Email é um campo obrigatório")
         @Email(message = "Email inválido")
@@ -37,12 +33,13 @@ public record ClienteRequest(
 
         @NotBlank(message = "CEP é um campo obrigatório")
         String cep,
-        @NotBlank String logradouro,
-        String complemento,
-        @NotBlank String cidade,
+        String logradouro,
+        String cidade,
+        String uf,
+        String bairro,
         @NotBlank String tipoEndereco,
-        @NotBlank String uf,
         @NotBlank String numero,
+        String complemento,
 
         // --- Campos Adicionados para corresponder à entidade Usuarios ---
         @NotNull(message = "Data de Nascimento é obrigatório")
@@ -71,7 +68,7 @@ public record ClienteRequest(
 
         String cargo, // Opcional
 
-        BigDecimal salarioMensal, // Opcional
+        BigDecimal rendaMensal, // Opcional
 
         Integer tempoEmprego, // Opcional
 
@@ -81,9 +78,6 @@ public record ClienteRequest(
         Boolean possuiRestricoesBancarias,
 
         @NotNull(message = "E PPE é um campo obrigatório")
-        Boolean ePpe,
-
-        @NotNull(message = "A Role é um campo obrigatório")
-        String role // A role (papel) pode ser um enum, mas como string é mais simples para o JSON
+        Boolean ePpe
 ) {
 }
