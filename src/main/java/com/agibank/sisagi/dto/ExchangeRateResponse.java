@@ -1,6 +1,7 @@
 package com.agibank.sisagi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -9,10 +10,8 @@ import java.util.Map;
  * API: https://www.exchangerate-api.com/
  */
 public record ExchangeRateResponse(
-
         String result,
         String documentation,
-
         @JsonProperty("terms_of_use")
         String termsOfUse,
         @JsonProperty("time_last_update_unix")
@@ -30,6 +29,7 @@ public record ExchangeRateResponse(
 ) {
     /**
      * Obtém a taxa de conversão para uma moeda específica
+     *
      * @param currencyCode Código da moeda (ex: "BRL", "EUR")
      * @return Taxa de conversão
      */

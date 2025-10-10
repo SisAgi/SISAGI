@@ -1,9 +1,10 @@
 package com.agibank.sisagi.service;
 
-import com.agibank.sisagi.dto.TransacaoRequest;
+import com.agibank.sisagi.dto.DepositoRequest;
+import com.agibank.sisagi.dto.SaqueRequest;
 import com.agibank.sisagi.dto.TransacaoResponse;
+import com.agibank.sisagi.dto.TransferenciaRequest;
 import com.agibank.sisagi.exception.ContaInvalida;
-import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.model.Conta;
 import com.agibank.sisagi.model.Gerente;
 import com.agibank.sisagi.model.Transacao;
@@ -33,7 +34,7 @@ public class TransacaoService {
 
     // Realiza uma transferência entre contas
     @Transactional
-    public TransacaoResponse realizarTransferencia(TransacaoRequest dto, Long gerenteExecutorId) {
+    public TransacaoResponse realizarTransferencia(TransferenciaRequest dto, Long gerenteExecutorId) {
         // Validação básica
         if (dto.contaOrigemId() == null || dto.contaDestinoId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transferências requerem Conta de Origem e Conta de Destino.");
@@ -59,13 +60,13 @@ public class TransacaoService {
         String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
 
         // Cria a transação de débito e salva
-        Transacao debito = executarDebito(contaOrigem, dto.valor(), TipoTransacao.TRANSFERENCIA_ENVIADA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        Transacao debito = executarDebito(contaOrigem, dto.valor(), TipoTransacao.TRANSFERENCIA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
         debito.setContaOrigem(contaOrigem);
         debito.setContaDestino(contaDestino);
         transacaoRepository.save(debito);
 
         // Cria a transação de crédito e salva
-        Transacao credito = executarCredito(contaDestino, dto.valor(), TipoTransacao.TRANSFERENCIA_RECEBIDA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        Transacao credito = executarCredito(contaDestino, dto.valor(), TipoTransacao.TRANSFERENCIA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
         credito.setContaOrigem(contaOrigem);
         credito.setContaDestino(contaDestino);
         transacaoRepository.save(credito);
@@ -79,7 +80,7 @@ public class TransacaoService {
 
     // Realiza um depósito para uma conta específica
     @Transactional
-    public TransacaoResponse realizarDeposito(TransacaoRequest dto, Long gerenteExecutorId) {
+    public TransacaoResponse realizarDeposito(DepositoRequest dto, Long gerenteExecutorId) {
         Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
 
@@ -89,6 +90,7 @@ public class TransacaoService {
         if (conta.getStatusConta() == StatusConta.EXCLUIDA){
             throw new ContaInvalida("Conta origem está excluida");
         }
+
         // Lógica de negócio: Depósitos acima de R$ 10 mil requerem motivo.
         if (dto.valor().compareTo(BigDecimal.valueOf(10000.00)) > 0 && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Depósitos em dinheiro acima de R$ 10.000,00 requerem a origem da espécie.");
@@ -106,7 +108,7 @@ public class TransacaoService {
 
     // Realiza um saque
     @Transactional
-    public TransacaoResponse realizarSaque(TransacaoRequest dto, Long gerenteExecutorId) {
+    public TransacaoResponse realizarSaque(SaqueRequest dto, Long gerenteExecutorId) {
         Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
 
@@ -116,6 +118,7 @@ public class TransacaoService {
         if (conta.getStatusConta() == StatusConta.EXCLUIDA){
             throw new ContaInvalida("Conta origem está excluida");
         }
+
         // Lógica de negócio: Saques acima de R$ 10 mil requerem motivo.
         if (dto.valor().compareTo(BigDecimal.valueOf(10000.00)) > 0 && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Saques acima de R$ 10.000,00 requerem o motivo da movimentação.");

@@ -9,4 +9,6 @@ public record EnderecoResponse(
         String cidade,
         String estado,
         String tipoEndereco,
-        Long clienteId){}
+        Long clienteId
+) {
+}

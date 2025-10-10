@@ -22,5 +22,6 @@ public class ContaPoupanca extends Conta{
     private int dataAniversario = LocalDate.now().getDayOfMonth();
 
     @Column(name = "rendimento")
-    private double rendimento = 0.05;
+    @Builder.Default
+    private double rendimento = 0.5;
 }

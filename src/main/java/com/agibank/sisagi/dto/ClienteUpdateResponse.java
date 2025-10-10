@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ClienteUpdateResponse(
-
         Long id,
         String nomeCompleto,
         String email,
@@ -29,4 +28,6 @@ public record ClienteUpdateResponse(
         Boolean ePpe,
         UserRole role,
         List<EnderecoResponse> enderecos,
-        TelefoneResponse telefoneResponse){}
+        TelefoneResponse telefoneResponse
+) {
+}

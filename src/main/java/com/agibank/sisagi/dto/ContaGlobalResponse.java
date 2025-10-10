@@ -6,13 +6,14 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 public record ContaGlobalResponse(
-
         Long id,
         String numeroConta,
         String agencia,
         BigDecimal saldo,
-        BigDecimal saldoDolares,
+        BigDecimal saldoDolar,
         String codigoSwift,
-        Set<Long> titularIds,
+        Set<String> titularCpfs, // Alterado para CPF
         StatusConta statusConta,
-        String tipoConta) {}
+        String tipoConta
+) {
+}

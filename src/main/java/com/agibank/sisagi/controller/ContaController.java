@@ -1,9 +1,7 @@
 package com.agibank.sisagi.controller;
 
 import com.agibank.sisagi.dto.*;
-import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.model.Conta;
-import com.agibank.sisagi.repository.ContaRepository;
 import com.agibank.sisagi.service.ContaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContaController {
     private final ContaService contaService;
-
-    private final ContaRepository contaRepository;
 
     // Endpoint para a criação de uma nova conta-corrente
     @PostMapping("/corrente")
@@ -45,13 +41,6 @@ public class ContaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(contaService.criarContaGlobal(contaGlobal));
     }
 
-    // Endpoint para buscar uma conta pelo ID
-    @GetMapping("/{contaId}")
-    public ResponseEntity<Object> getContaById(@PathVariable Long contaId) {
-        Object contaResponse = contaService.buscarDetalhesConta(contaId);
-        return ResponseEntity.ok(contaResponse);
-    }
-
     @GetMapping
     public ResponseEntity<List<Object>> listarContas() {
         List<Conta> contas = contaService.listarTodasContas();
@@ -59,6 +48,19 @@ public class ContaController {
                 .map(contaService::mapearContaParaResponse)
                 .toList();
         return ResponseEntity.ok(contasResponse);
+    }
+
+    // Endpoint para buscar uma conta pelo ID
+    @GetMapping("/{contaId}")
+    public ResponseEntity<Object> getContaById(@PathVariable Long contaId) {
+        Object contaResponse = contaService.buscarDetalhesContaPorId(contaId);
+        return ResponseEntity.ok(contaResponse);
+    }
+
+    @GetMapping("/buscar-numero/{numeroConta}")
+    public ResponseEntity<Object> getContaByNumeroConta(@PathVariable String numeroConta) {
+        Object contaResponse = contaService.buscarDetalhesContaPorNumero(numeroConta);
+        return ResponseEntity.ok(contaResponse);
     }
 
     @PutMapping("/desativar/{numeroConta}")

@@ -11,8 +11,8 @@ public record ContaJovemResponse(
         String agencia,
         BigDecimal saldo,
         Long responsavelId,
-        Set<Long> titularIds,
+        Set<String> titularCpfs, // Alterado para CPF
         StatusConta statusConta,
-        String tipoConta){}
-
-
+        String tipoConta
+) {
+}

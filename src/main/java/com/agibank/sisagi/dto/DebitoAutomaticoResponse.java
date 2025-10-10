@@ -9,4 +9,5 @@ public record DebitoAutomaticoResponse(
         String status,      // Retorna a descrição do Enum
         String identificadorConvenio,
         String descricao
-) {}
+) {
+}
