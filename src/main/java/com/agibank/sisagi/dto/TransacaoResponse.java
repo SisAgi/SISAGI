@@ -11,7 +11,7 @@ public record TransacaoResponse(
         TipoTransacao tipo,
         BigDecimal valor,
         LocalDateTime dataHora,
-        
+
         String nsUnico,
         Long contaOrigemId,
         String numeroContaOrigem,
@@ -19,5 +19,7 @@ public record TransacaoResponse(
         String numeroContaDestino,
         Long gerenteExecutorId,
         String nomeGerenteExecutor,
-        String motivoMovimentacao){}
+        String motivoMovimentacao
+) {
+}
 

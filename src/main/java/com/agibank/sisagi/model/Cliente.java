@@ -69,7 +69,7 @@ public class Cliente extends Usuarios {
     private Boolean ePpe;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "segmento_cliente", nullable = false)
+    @Column(name = "segmento_cliente", nullable = true) // <-- Mude para 'true'
     private SegmentoCliente segmentoCliente;
 
     // Classe embutida para telefone

@@ -1,16 +1,18 @@
 package com.agibank.sisagi.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public record ContaGlobalRequest(
-
-        @NotBlank(message = "O número da conta é um campo obrigatório obrigatório")
-        String numeroConta,
-
-        @NotBlank(message = "A agência é um campo obrigatório obrigatória")
+        @NotNull(message = "A agência é um campo obrigatório")
         String agencia,
 
-        @NotNull(message = "Pelo menos um cliente titular é obrigatório")
-        List<Long> titularIds){}
+        @NotEmpty(message = "A lista de CPFs de titulares não pode ser vazia")
+        List<String> titularCpfs,
+
+        @NotBlank(message = "A senha é obrigatória")
+        String senha
+) {}

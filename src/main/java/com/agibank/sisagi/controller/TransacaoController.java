@@ -1,7 +1,9 @@
 package com.agibank.sisagi.controller;
 
-import com.agibank.sisagi.dto.TransacaoRequest;
+import com.agibank.sisagi.dto.DepositoRequest;
+import com.agibank.sisagi.dto.SaqueRequest;
 import com.agibank.sisagi.dto.TransacaoResponse;
+import com.agibank.sisagi.dto.TransferenciaRequest;
 import com.agibank.sisagi.service.TransacaoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ public class TransacaoController {
     // Endpoint para realizar uma transferência entre contas
     @PostMapping("/transferencia")
     public ResponseEntity<TransacaoResponse> realizarTransferencia(
-            @Valid @RequestBody TransacaoRequest request,
+            @Valid @RequestBody TransferenciaRequest request,
             @RequestParam Long gerenteExecutorId) {
         TransacaoResponse response = transacaoService.realizarTransferencia(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -30,7 +32,7 @@ public class TransacaoController {
     // Endpoint para realizar um depósito em uma conta
     @PostMapping("/deposito")
     public ResponseEntity<TransacaoResponse> realizarDeposito(
-            @Valid @RequestBody TransacaoRequest request,
+            @Valid @RequestBody DepositoRequest request,
             @RequestParam Long gerenteExecutorId) {
         TransacaoResponse response = transacaoService.realizarDeposito(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -39,7 +41,7 @@ public class TransacaoController {
     // Endpoint para realizar um saque em uma conta
     @PostMapping("/saque")
     public ResponseEntity<TransacaoResponse> realizarSaque(
-            @Valid @RequestBody TransacaoRequest request,
+            @Valid @RequestBody SaqueRequest request,
             @RequestParam Long gerenteExecutorId) {
         TransacaoResponse response = transacaoService.realizarSaque(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

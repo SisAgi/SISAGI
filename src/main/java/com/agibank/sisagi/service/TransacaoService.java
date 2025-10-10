@@ -1,7 +1,9 @@
 package com.agibank.sisagi.service;
 
-import com.agibank.sisagi.dto.TransacaoRequest;
+import com.agibank.sisagi.dto.DepositoRequest;
+import com.agibank.sisagi.dto.SaqueRequest;
 import com.agibank.sisagi.dto.TransacaoResponse;
+import com.agibank.sisagi.dto.TransferenciaRequest;
 import com.agibank.sisagi.model.Conta;
 import com.agibank.sisagi.model.Gerente;
 import com.agibank.sisagi.model.Transacao;
@@ -30,7 +32,7 @@ public class TransacaoService {
 
     // Realiza uma transferência entre contas
     @Transactional
-    public TransacaoResponse realizarTransferencia(TransacaoRequest dto, Long gerenteExecutorId) {
+    public TransacaoResponse realizarTransferencia(TransferenciaRequest dto, Long gerenteExecutorId) {
         // Validação básica
         if (dto.contaOrigemId() == null || dto.contaDestinoId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transferências requerem Conta de Origem e Conta de Destino.");
@@ -48,13 +50,13 @@ public class TransacaoService {
         String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
 
         // Cria a transação de débito e salva
-        Transacao debito = executarDebito(contaOrigem, dto.valor(), TipoTransacao.TRANSFERENCIA_ENVIADA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        Transacao debito = executarDebito(contaOrigem, dto.valor(), TipoTransacao.TRANSFERENCIA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
         debito.setContaOrigem(contaOrigem);
         debito.setContaDestino(contaDestino);
         transacaoRepository.save(debito);
 
         // Cria a transação de crédito e salva
-        Transacao credito = executarCredito(contaDestino, dto.valor(), TipoTransacao.TRANSFERENCIA_RECEBIDA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
+        Transacao credito = executarCredito(contaDestino, dto.valor(), TipoTransacao.TRANSFERENCIA, gerente, dto.motivoMovimentacao(), nsuDaOperacao);
         credito.setContaOrigem(contaOrigem);
         credito.setContaDestino(contaDestino);
         transacaoRepository.save(credito);
@@ -68,7 +70,7 @@ public class TransacaoService {
 
     // Realiza um depósito para uma conta específica
     @Transactional
-    public TransacaoResponse realizarDeposito(TransacaoRequest dto, Long gerenteExecutorId) {
+    public TransacaoResponse realizarDeposito(DepositoRequest dto, Long gerenteExecutorId) {
         Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
 
@@ -92,7 +94,7 @@ public class TransacaoService {
 
     // Realiza um saque
     @Transactional
-    public TransacaoResponse realizarSaque(TransacaoRequest dto, Long gerenteExecutorId) {
+    public TransacaoResponse realizarSaque(SaqueRequest dto, Long gerenteExecutorId) {
         Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
 
