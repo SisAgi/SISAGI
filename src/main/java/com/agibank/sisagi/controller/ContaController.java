@@ -1,12 +1,15 @@
 package com.agibank.sisagi.controller;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.model.Conta;
 import com.agibank.sisagi.service.ContaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/contas")
@@ -43,5 +46,14 @@ public class ContaController {
     public ResponseEntity<Object> getContaById(@PathVariable Long contaId) {
         Object contaResponse = contaService.buscarDetalhesConta(contaId);
         return ResponseEntity.ok(contaResponse);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Object>> listarContas() {
+        List<Conta> contas = contaService.listarTodasContas();
+        List<Object> contasResponse = contas.stream()
+                .map(contaService::mapearContaParaResponse)
+                .toList();
+        return ResponseEntity.ok(contasResponse);
     }
 }
