@@ -62,6 +62,9 @@ public abstract class Conta {
     @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Relação um para muitos com Transacões
     private List<Transacao> transacoes;
 
+    @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DebitoAutomatico> debitoAutomaticos;
+
     public void creditar(BigDecimal valor) {
         if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor do crédito deve ser positivo.");
