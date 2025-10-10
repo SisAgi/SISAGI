@@ -86,6 +86,9 @@ public class TransacaoService {
         Conta conta = contaRepository.findById(dto.contaId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
 
+        if (conta.getStatusConta() == StatusConta.EXCLUIDA){
+            throw new ContaInvalida("Conta origem está excluida");
+        }
         // Lógica de negócio: Depósitos acima de R$ 10 mil requerem motivo.
         if (dto.valor().compareTo(BigDecimal.valueOf(10000.00)) > 0 && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Depósitos em dinheiro acima de R$ 10.000,00 requerem a origem da espécie.");
@@ -110,6 +113,9 @@ public class TransacaoService {
         Conta conta = contaRepository.findById(dto.contaId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
 
+        if (conta.getStatusConta() == StatusConta.EXCLUIDA){
+            throw new ContaInvalida("Conta origem está excluida");
+        }
         // Lógica de negócio: Saques acima de R$ 10 mil requerem motivo.
         if (dto.valor().compareTo(BigDecimal.valueOf(10000.00)) > 0 && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Saques acima de R$ 10.000,00 requerem o motivo da movimentação.");
