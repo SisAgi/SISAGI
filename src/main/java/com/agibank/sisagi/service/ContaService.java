@@ -168,15 +168,17 @@ public class ContaService {
     public Object desativarConta(String numeroConta) {
         Conta conta = contaRepository.findByNumeroConta(numeroConta)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
+
         if (conta.getSaldo().compareTo(BigDecimal.ZERO) != 0) {
             throw new SaldoInvalido("Saldo do cliente precisa ser zerado para excluir a conta");
         }
 
         List<DebitoAutomatico> debitosAtivos = conta.getDebitoAutomaticos()
                 .stream()
-                .filter(n-> n.getStatus().equals(StatusDebito.ATIVO))
+                .filter(n -> n.getStatus().equals(StatusDebito.ATIVO))
                 .toList();
-        if (debitosAtivos != null){
+
+        if (!debitosAtivos.isEmpty()) {
             throw new DebitosAtivos("Conta possui débitos automáticos ativos");
         }
 
