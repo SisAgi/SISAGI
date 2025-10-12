@@ -1,11 +1,10 @@
 package com.agibank.sisagi.service;
 
-import com.agibank.sisagi.dto.DepositoRequest;
-import com.agibank.sisagi.dto.SaqueRequest;
-import com.agibank.sisagi.dto.TransacaoResponse;
-import com.agibank.sisagi.dto.TransferenciaRequest;
+import com.agibank.sisagi.dto.*;
 import com.agibank.sisagi.exception.ContaInvalida;
+import com.agibank.sisagi.exception.SaldoInvalido;
 import com.agibank.sisagi.model.Conta;
+import com.agibank.sisagi.model.ContaGlobal;
 import com.agibank.sisagi.model.Gerente;
 import com.agibank.sisagi.model.Transacao;
 import com.agibank.sisagi.model.enums.StatusConta;
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,6 +31,7 @@ public class TransacaoService {
     private final TransacaoRepository transacaoRepository;
     private final ContaRepository contaRepository;
     private final GerenteRepository gerenteRepository;
+    private final ExchangeRateService exchangeRateService;
 
     // Realiza uma transferência entre contas
     @Transactional
@@ -179,6 +180,189 @@ public class TransacaoService {
         transacao.setNsUnico(nsUnico);
 
         return transacao;
+    }
+
+    // Converte saldo de reais para dólares
+    @Transactional
+    public ConversaoMoedaResponse converterReaisParaDolares(ConversaoMoedaRequest dto, Long gerenteExecutorId) {
+        // Busca o gerente
+        Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
+
+        // Busca a conta
+        Conta conta = contaRepository.findById(dto.contaId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
+
+        // Verifica se é conta global
+        if (!(conta instanceof ContaGlobal)) {
+            throw new ContaInvalida("Somente contas globais podem realizar conversão de moeda.");
+        }
+
+        ContaGlobal contaGlobal = (ContaGlobal) conta;
+
+        // Verifica se a conta está ativa
+        if (contaGlobal.getStatusConta() == StatusConta.EXCLUIDA) {
+            throw new ContaInvalida("Conta está excluída.");
+        }
+
+        // Verifica se tem saldo suficiente
+        if (contaGlobal.getSaldo().compareTo(dto.valorReais()) < 0) {
+            throw new SaldoInvalido("Saldo insuficiente para realizar a conversão.");
+        }
+
+        // Verifica se o valor é maior que zero
+        if (dto.valorReais().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new SaldoInvalido("O valor a ser convertido deve ser maior que zero.");
+        }
+
+        // Obtém a cotação atual
+        BigDecimal cotacao = exchangeRateService.getCotacaoAtual();
+        
+        // Converte o valor para dólares
+        BigDecimal valorDolares = exchangeRateService.converterRealParaDolar(dto.valorReais());
+
+        // Debita o valor em reais da conta
+        contaGlobal.debitar(dto.valorReais());
+        
+        // Credita o valor em dólares
+        BigDecimal saldoDolarAtual = contaGlobal.getSaldoDolar() != null ? contaGlobal.getSaldoDolar() : BigDecimal.ZERO;
+        contaGlobal.setSaldoDolar(saldoDolarAtual.add(valorDolares));
+        
+        // Atualiza a cotação atual da conta
+        contaGlobal.setCotacaoAtual(cotacao);
+
+        // Gera NSU único
+        String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+
+        // Cria a transação
+        Transacao transacao = new Transacao();
+        transacao.setConta(contaGlobal);
+        transacao.setContaOrigem(contaGlobal);
+        transacao.setTipoTransacao(TipoTransacao.CONVERSAO_MOEDA);
+        transacao.setValor(dto.valorReais().negate()); // Negativo porque está saindo da conta em reais
+        transacao.setIdGerenteExecutor(gerente);
+        transacao.setMotivoMovimentacao(dto.motivoMovimentacao());
+        transacao.setNsUnico(nsuDaOperacao);
+
+        // Salva a transação e a conta
+        transacaoRepository.save(transacao);
+        contaRepository.save(contaGlobal);
+
+        return new ConversaoMoedaResponse(
+                transacao.getId(),
+                contaGlobal.getId(),
+                contaGlobal.getNumeroConta(),
+                dto.valorReais(),
+                valorDolares,
+                cotacao,
+                contaGlobal.getSaldo(),
+                contaGlobal.getSaldoDolar(),
+                LocalDateTime.now(),
+                nsuDaOperacao
+        );
+    }
+
+    // Realiza um saque internacional (em dólares)
+    @Transactional
+    public TransacaoResponse realizarSaqueInternacional(SaqueInternacionalRequest dto, Long gerenteExecutorId) {
+        Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
+
+        Conta conta = contaRepository.findById(dto.contaId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
+
+        // Verifica se é conta global
+        if (!(conta instanceof ContaGlobal)) {
+            throw new ContaInvalida("Somente contas globais podem realizar saques internacionais.");
+        }
+
+        ContaGlobal contaGlobal = (ContaGlobal) conta;
+
+        if (contaGlobal.getStatusConta() == StatusConta.EXCLUIDA) {
+            throw new ContaInvalida("Conta está excluída.");
+        }
+
+        // Verifica se tem saldo em dólar suficiente
+        BigDecimal saldoDolar = contaGlobal.getSaldoDolar() != null ? contaGlobal.getSaldoDolar() : BigDecimal.ZERO;
+        if (saldoDolar.compareTo(dto.valorDolares()) < 0) {
+            throw new SaldoInvalido("Saldo em dólares insuficiente para realizar o saque.");
+        }
+
+        // Lógica de negócio: Saques internacionais acima de $ 5000 requerem motivo
+        if (dto.valorDolares().compareTo(BigDecimal.valueOf(5000.00)) > 0 
+            && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Saques internacionais acima de $ 5.000,00 requerem o motivo da movimentação.");
+        }
+
+        // Debita o valor em dólares
+        contaGlobal.setSaldoDolar(saldoDolar.subtract(dto.valorDolares()));
+
+        String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+
+        // Cria a transação
+        Transacao transacao = new Transacao();
+        transacao.setConta(contaGlobal);
+        transacao.setContaOrigem(contaGlobal);
+        transacao.setTipoTransacao(TipoTransacao.SAQUE_INTERNACIONAL);
+        transacao.setValor(dto.valorDolares().negate()); // Negativo para indicar saída
+        transacao.setIdGerenteExecutor(gerente);
+        transacao.setMotivoMovimentacao(dto.motivoMovimentacao());
+        transacao.setNsUnico(nsuDaOperacao);
+
+        transacaoRepository.save(transacao);
+        contaRepository.save(contaGlobal);
+
+        return toResponse(transacao);
+    }
+
+    // Realiza um depósito internacional (em dólares)
+    @Transactional
+    public TransacaoResponse realizarDepositoInternacional(DepositoInternacionalRequest dto, Long gerenteExecutorId) {
+        Gerente gerente = gerenteRepository.findById(gerenteExecutorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente executor não encontrado."));
+
+        Conta conta = contaRepository.findById(dto.contaId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
+
+        // Verifica se é conta global
+        if (!(conta instanceof ContaGlobal)) {
+            throw new ContaInvalida("Somente contas globais podem realizar depósitos internacionais.");
+        }
+
+        ContaGlobal contaGlobal = (ContaGlobal) conta;
+
+        if (contaGlobal.getStatusConta() == StatusConta.EXCLUIDA) {
+            throw new ContaInvalida("Conta está excluída.");
+        }
+
+        // Lógica de negócio: Depósitos internacionais acima de $ 5000 requerem motivo
+        if (dto.valorDolares().compareTo(BigDecimal.valueOf(5000.00)) > 0 
+            && (dto.motivoMovimentacao() == null || dto.motivoMovimentacao().isBlank())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Depósitos internacionais acima de $ 5.000,00 requerem a origem da espécie.");
+        }
+
+        // Credita o valor em dólares
+        BigDecimal saldoDolar = contaGlobal.getSaldoDolar() != null ? contaGlobal.getSaldoDolar() : BigDecimal.ZERO;
+        contaGlobal.setSaldoDolar(saldoDolar.add(dto.valorDolares()));
+
+        String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+
+        // Cria a transação
+        Transacao transacao = new Transacao();
+        transacao.setConta(contaGlobal);
+        transacao.setContaDestino(contaGlobal);
+        transacao.setTipoTransacao(TipoTransacao.DEPOSITO_INTERNACIONAL);
+        transacao.setValor(dto.valorDolares()); // Positivo para indicar entrada
+        transacao.setIdGerenteExecutor(gerente);
+        transacao.setMotivoMovimentacao(dto.motivoMovimentacao());
+        transacao.setNsUnico(nsuDaOperacao);
+
+        transacaoRepository.save(transacao);
+        contaRepository.save(contaGlobal);
+
+        return toResponse(transacao);
     }
 
     // Tem a função de mapear os campos da entidade para um DTO de resposta

@@ -31,7 +31,7 @@ public abstract class Conta {
     @Column(name = "numero_conta", nullable = false, unique = true, length = 20) // Número da conta deve ser único, não nulo e com tamanho máximo de 20 caracteres
     private String numeroConta;
 
-    @Column(nullable = false, length = 16) // Senha deve ser não nula e com tamanho máximo de 16 caracteres
+    @Column(nullable = false, length = 60) // Senha deve ser não nula e com tamanho máximo de 60 caracteres (BCrypt)
     private String senha;
 
     @Column(name = "agencia", nullable = false) // Agência deve ser não nula

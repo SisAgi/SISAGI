@@ -14,7 +14,7 @@ public class ExchangeRateService {
     
     private final RestTemplate restTemplate;
     
-    @Value("${exchangerate.api.key:6b2fcaba86114260aa3dd360e48d6a49}")
+    @Value("${exchangerate.api.key:09f12f5cae46fe29a08e0fb2}")
     private String apiKey;
     
     @Value("${exchangerate.api.url:https://v6.exchangerate-api.com/v6}")

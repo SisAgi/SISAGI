@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/contas")
@@ -70,5 +72,34 @@ public class ContaController {
            throw new Exception();
        }
        return ResponseEntity.ok(conta);
+    }
+
+    // Endpoint para buscar todas as contas de um cliente por CPF
+    @GetMapping("/buscar-por-cpf/{cpf}")
+    public ResponseEntity<List<Object>> buscarContasPorCpf(@PathVariable String cpf) {
+        List<Object> contas = contaService.buscarContasPorCpf(cpf);
+        return ResponseEntity.ok(contas);
+    }
+
+    // Endpoint para validar senha da conta por ID
+    @PostMapping("/{contaId}/validar-senha")
+    public ResponseEntity<Map<String, Boolean>> validarSenhaConta(
+            @PathVariable Long contaId,
+            @Valid @RequestBody ValidarSenhaRequest request) {
+        boolean senhaValida = contaService.validarSenhaConta(contaId, request.senha());
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("senhaValida", senhaValida);
+        return ResponseEntity.ok(response);
+    }
+
+    // Endpoint para validar senha da conta por número
+    @PostMapping("/numero/{numeroConta}/validar-senha")
+    public ResponseEntity<Map<String, Boolean>> validarSenhaContaPorNumero(
+            @PathVariable String numeroConta,
+            @Valid @RequestBody ValidarSenhaRequest request) {
+        boolean senhaValida = contaService.validarSenhaContaPorNumero(numeroConta, request.senha());
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("senhaValida", senhaValida);
+        return ResponseEntity.ok(response);
     }
 }
