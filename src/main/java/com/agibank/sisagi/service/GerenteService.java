@@ -6,6 +6,7 @@ import com.agibank.sisagi.model.Gerente;
 import com.agibank.sisagi.model.enums.UserRole;
 import com.agibank.sisagi.repository.GerenteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GerenteService {
     private final GerenteRepository gerenteRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // Cria um gerente adicional
     @Transactional
@@ -31,7 +33,8 @@ public class GerenteService {
         Gerente novoGerente = new Gerente();
         novoGerente.setNomeCompleto(request.nome());
         novoGerente.setEmail(request.email());
-        novoGerente.setSenha(request.senha());
+        novoGerente.setCpf(request.cpf());
+        novoGerente.setSenha(passwordEncoder.encode(request.senha()));
         novoGerente.setMatricula(request.matricula());
         novoGerente.setRole(UserRole.GERENTE);
 
@@ -74,6 +77,19 @@ public class GerenteService {
             throw new IllegalArgumentException("Gerente não encontrado com o ID: " + id);
         }
         gerenteRepository.deleteById(id);
+    }
+
+    // Valida o login do gerente
+    @Transactional(readOnly = true)
+    public GerenteResponse validarLogin(Long gerenteId, String senha) {
+        Gerente gerente = gerenteRepository.findById(gerenteId)
+                .orElseThrow(() -> new IllegalArgumentException("Gerente não encontrado."));
+        
+        if (!passwordEncoder.matches(senha, gerente.getSenha())) {
+            throw new IllegalArgumentException("Senha incorreta.");
+        }
+        
+        return mapToResponse(gerente);
     }
 
     // Tem a função de mapear os campos da entidade para um DTO de resposta

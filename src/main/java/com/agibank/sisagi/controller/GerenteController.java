@@ -52,16 +52,12 @@ public class GerenteController {
     // Endpoint para login do gerente
     @PostMapping("/login")
     public ResponseEntity<GerenteResponse> login(@RequestBody LoginRequest request) {
-        if (request.gerenteId().equals(1L) && "123456".equals(request.senha())) {
-            GerenteResponse response = new GerenteResponse(
-                    1L,
-                    "Gerente Teste",
-                    "gerente@email.com",
-                    "GER2025"
-            );
+        try {
+            GerenteResponse response = gerenteService.validarLogin(request.gerenteId(), request.senha());
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
 

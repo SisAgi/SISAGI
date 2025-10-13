@@ -12,6 +12,7 @@ import com.agibank.sisagi.repository.ClienteRepository;
 import com.agibank.sisagi.repository.ContaRepository;
 import jakarta.persistence.DiscriminatorValue;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class ContaService {
     private final ContaRepository contaRepository;
     private final ClienteRepository clienteRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // Cria uma conta poupança
     @Transactional
@@ -52,7 +54,7 @@ public class ContaService {
         contaCorrente.setNumeroConta(gerarNumeroContaUnico());
         contaCorrente.setAgencia(request.agencia());
         contaCorrente.setSaldo(BigDecimal.ZERO);
-        contaCorrente.setSenha(request.senha());
+        contaCorrente.setSenha(passwordEncoder.encode(request.senha()));
         contaCorrente.setLimiteChequeEspecial(limiteChequeEspecial);
         contaCorrente.setTitulares(new HashSet<>(titulares));
         contaCorrente.setStatusConta(StatusConta.ATIVA);
@@ -81,7 +83,7 @@ public class ContaService {
         contaPoupanca.setNumeroConta(gerarNumeroContaUnico()); // Nova chamada
         contaPoupanca.setSaldo(BigDecimal.ZERO);
         contaPoupanca.setAgencia(request.agencia());
-        contaPoupanca.setSenha(request.senha());
+        contaPoupanca.setSenha(passwordEncoder.encode(request.senha()));
         contaPoupanca.setRendimento(contaPoupanca.getRendimento());
         contaPoupanca.setTitulares(new HashSet<>(titulares));
         contaPoupanca.setStatusConta(StatusConta.ATIVA);
@@ -120,7 +122,7 @@ public class ContaService {
         contaJovem.setNumeroConta(gerarNumeroContaUnico());
         contaJovem.setSaldo(BigDecimal.ZERO);
         contaJovem.setAgencia(request.agencia());
-        contaJovem.setSenha(request.senha());
+        contaJovem.setSenha(passwordEncoder.encode(request.senha()));
         contaJovem.setResponsavelContaId(contaDoResponsavel); // <-- Corrected
         contaJovem.setTitulares(new HashSet<>(titulares));
         contaJovem.setStatusConta(StatusConta.ATIVA);
@@ -152,7 +154,7 @@ public class ContaService {
         contaGlobal.setSaldoDolar(BigDecimal.ZERO);
         contaGlobal.setAgencia(request.agencia());
         contaGlobal.setCodigoSwift("AGIBRSP" + contaGlobal.getAgencia());
-        contaGlobal.setSenha(request.senha());
+        contaGlobal.setSenha(passwordEncoder.encode(request.senha()));
         contaGlobal.setTitulares(new HashSet<>(titulares));
         contaGlobal.setStatusConta(StatusConta.ATIVA);
         contaGlobal.setDataAbertura(LocalDate.now());
@@ -361,5 +363,36 @@ public class ContaService {
         Conta conta = contaRepository.findByNumeroConta(numeroConta)
                 .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
         return conta.getSaldo();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object> buscarContasPorCpf(String cpf) {
+        List<Conta> contas = contaRepository.findByTitularCpf(cpf);
+        
+        if (contas.isEmpty()) {
+            throw new RecursoNaoEncontrado("Nenhuma conta encontrada para o CPF: " + cpf);
+        }
+        
+        return contas.stream()
+                .map(this::mapearContaParaResponse)
+                .collect(Collectors.toList());
+    }
+
+    // Valida a senha de uma conta
+    @Transactional(readOnly = true)
+    public boolean validarSenhaConta(Long contaId, String senha) {
+        Conta conta = contaRepository.findById(contaId)
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
+        
+        return passwordEncoder.matches(senha, conta.getSenha());
+    }
+
+    // Valida a senha de uma conta por número
+    @Transactional(readOnly = true)
+    public boolean validarSenhaContaPorNumero(String numeroConta, String senha) {
+        Conta conta = contaRepository.findByNumeroConta(numeroConta)
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
+        
+        return passwordEncoder.matches(senha, conta.getSenha());
     }
 }
