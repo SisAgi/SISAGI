@@ -2,11 +2,9 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
 import com.agibank.sisagi.exception.ContaInvalida;
+import com.agibank.sisagi.exception.SaldoInsuficienteException;
 import com.agibank.sisagi.exception.SaldoInvalido;
-import com.agibank.sisagi.model.Conta;
-import com.agibank.sisagi.model.ContaGlobal;
-import com.agibank.sisagi.model.Gerente;
-import com.agibank.sisagi.model.Transacao;
+import com.agibank.sisagi.model.*;
 import com.agibank.sisagi.model.enums.StatusConta;
 import com.agibank.sisagi.model.enums.TipoTransacao;
 import com.agibank.sisagi.repository.ContaRepository;
@@ -152,7 +150,13 @@ public class TransacaoService {
     // Métodos utilitários de débito e crédito
     private Transacao executarDebito(Conta conta, BigDecimal valor, TipoTransacao tipo, Gerente gerente, String motivo, String nsUnico) {
         try {
-            conta.debitar(valor);
+            if (conta instanceof ContaCorrente contaCorrente) {
+                contaCorrente.debitarCorrente(valor);
+            } else {
+                conta.debitar(valor);
+            }
+        } catch (SaldoInsuficienteException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
