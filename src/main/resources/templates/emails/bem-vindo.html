@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Bem-vindo à sua conta agi.</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f7; }
+        .email-container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { background-color: #007bff; /* Azul Secundário */ color: #ffffff; padding: 25px 30px; text-align: center; /* Centralizado */ }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+        .content { padding: 30px 40px; }
+        .content h2 { color: #333; font-size: 22px; }
+        .content p { color: #555; line-height: 1.6; font-size: 16px; }
+        .button-container { text-align: center; margin-top: 30px; }
+        .button { background-color: #007bff; /* Azul Secundário */ color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .brand { font-weight: bold; color: #28a745; /* Verde como detalhe */ }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #e0e0e0; }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1>Bem-vindo à sua conta agi.</h1>
+    </div>
+    <div class="content">
+        <h2>Sua conta foi aberta!</h2>
+        <p>Olá, <strong th:text="${nome}">Cliente</strong>,</p>
+        <p>Seja bem-vindo à sua nova experiência bancária digital. Sua conta no <span class="brand">agi.</span> foi criada com sucesso e já está pronta para usar.</p>
+        <div class="button-container">
+            <a href="#" class="button">Acessar minha conta</a>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Este é um e-mail automático. Por favor, não responda.</p>
+        <p>&copy; 2025 SysAgi. Todos os direitos reservados.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.email.EmailService;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.model.*;
 import com.agibank.sisagi.model.enums.SegmentoCliente;
@@ -21,6 +22,7 @@ public class ClienteService {
     private final GerenteRepository gerenteRepository;
     private final ContaService contaService;
     private final ViaCepService viaCepService;
+    private final EmailService emailService;
 
     @Transactional
     public ClienteResponse criar(ClienteRequest request) {
@@ -111,6 +113,7 @@ public class ClienteService {
         cliente.setSegmentoCliente(segmento);
 
         clienteRepository.save(cliente);
+        emailService.enviarEmailBoasVindas(cliente);
         return mapToClienteResponse(cliente);
     }
 
