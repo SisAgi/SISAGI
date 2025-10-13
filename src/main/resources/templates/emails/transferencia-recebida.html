@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Você Recebeu uma Transferência</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f7; }
+        .email-container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { background-color: #007bff; /* Azul Secundário */ color: #ffffff; padding: 25px 30px; text-align: center; /* Centralizado */ }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+        .content { padding: 30px 40px; }
+        .content h2 { color: #333; font-size: 22px; }
+        .content p { color: #555; line-height: 1.6; font-size: 16px; }
+        .details-box { background-color: #f9f9f9; border-left: 4px solid #28a745; /* Verde como detalhe */ padding: 20px; margin-top: 20px; }
+        .details-box p { margin: 10px 0; }
+        .details-box strong { color: #333; }
+        .amount { color: #28a745; /* Verde como detalhe */ font-weight: bold; font-size: 18px; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #e0e0e0; }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1>Transferencia Recebida.</h1>
+    </div>
+    <div class="content">
+        <h2>Você recebeu um valor na sua conta!</h2>
+        <p>Olá, <strong th:text="${nome}">Cliente</strong>,</p>
+        <p>Ótima notícia! Você recebeu uma transferência e o valor já está disponível em seu saldo.</p>
+        <div class="details-box">
+            <p><strong>Valor Recebido:</strong> <span class="amount" th:text="${#numbers.formatCurrency(valor)}">R$ 0,00</span></p>
+            <p><strong>Enviado da Conta:</strong> <span th:text="${contaOrigem}">0000-0</span></p>
+            <p><strong>Data e Hora:</strong> <span th:text="${#temporals.format(dataHora, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; 2025 SysAgi. Todos os direitos reservados.</p>
+    </div>
+</div>
+</body>
+</html>

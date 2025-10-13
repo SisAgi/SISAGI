@@ -1,6 +1,7 @@
 package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.email.EmailService;
 import com.agibank.sisagi.exception.DebitosAtivos;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
 import com.agibank.sisagi.exception.SaldoInvalido;
@@ -31,6 +32,7 @@ public class ContaService {
     private final ContaRepository contaRepository;
     private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     // Cria uma conta poupança
     @Transactional
@@ -186,6 +188,7 @@ public class ContaService {
 
         conta.setStatusConta(StatusConta.EXCLUIDA);
         contaRepository.save(conta);
+        conta.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarCancelamentoConta(titular, numeroConta));
 
         return mapearContaParaResponse(conta);
     }

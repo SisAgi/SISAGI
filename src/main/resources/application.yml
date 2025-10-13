@@ -29,3 +29,15 @@ springdoc:
     title: SisAgi - API de Gerenciamento Bancário
     description: "API RESTful para o sistema SisAgi, com operações para clientes, gerentes, contas e transações."
     version: v0.0.1
+
+mail:
+  host: sandbox.smtp.mailtrap.io
+  port: 2525
+  username: 00d3457a43d624
+  password: '84220ba943fdf4'
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true

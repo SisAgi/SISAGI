@@ -21,7 +21,7 @@ public class TransacaoController {
     @PostMapping("/transferencia")
     public ResponseEntity<TransacaoResponse> realizarTransferencia(
             @Valid @RequestBody TransferenciaRequest request,
-            @RequestParam Long gerenteExecutorId) {
+            @RequestParam Long gerenteExecutorId) throws InterruptedException {
         TransacaoResponse response = transacaoService.realizarTransferencia(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

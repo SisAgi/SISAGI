@@ -2,7 +2,9 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.DebitoAutomaticoRequest;
 import com.agibank.sisagi.dto.DebitoAutomaticoResponse;
+import com.agibank.sisagi.email.EmailService;
 import com.agibank.sisagi.exception.ContaInvalida;
+import com.agibank.sisagi.model.Cliente;
 import com.agibank.sisagi.model.Conta;
 import com.agibank.sisagi.model.DebitoAutomatico;
 import com.agibank.sisagi.model.enums.StatusConta;
@@ -24,6 +26,7 @@ public class DebitoAutomaticoService {
 
     private final DebitoAutomaticoRepository debitoRepository;
     private final ContaRepository contaRepository;
+    private final EmailService emailService;
 
     // Cria um débito automático
     @Transactional
@@ -50,6 +53,7 @@ public class DebitoAutomaticoService {
         debito.setStatus(StatusDebito.ATIVO);
 
         DebitoAutomatico salvo = debitoRepository.save(debito);
+        conta.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarAgendamentoDebito(titular, debito));
         return toResponse(salvo);
     }
 
