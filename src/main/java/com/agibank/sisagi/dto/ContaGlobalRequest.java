@@ -3,6 +3,7 @@ package com.agibank.sisagi.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public record ContaGlobalRequest(
         List<String> titularCpfs,
 
         @NotBlank(message = "A senha é obrigatória")
+        @Pattern(regexp = "\\d{6}", message = "A senha deve conter exatamente 6 dígitos numéricos")
         String senha
 ) {
 }

@@ -98,14 +98,14 @@ public class ContaService {
     // Cria uma conta jovem
     @Transactional
     public ContaJovemResponse criarContaJovem(ContaJovemRequest request) {
-        // Busca o cliente responsável
-        Cliente responsavel = clienteRepository.findById(request.responsavelId())
-                .orElseThrow(() -> new RecursoNaoEncontrado("Cliente responsável não encontrado."));
+        // Busca a conta do responsável pelo número da conta
+        Conta contaDoResponsavel = contaRepository.findByNumeroConta(request.numeroContaResponsavel())
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta do responsável não encontrada."));
 
-        Conta contaDoResponsavel = responsavel.getContas().stream()
-                .filter(c -> c instanceof ContaCorrente || c instanceof ContaPoupanca)
-                .findFirst()
-                .orElseThrow(() -> new RecursoNaoEncontrado("Conta do cliente responsável não encontrada."));
+        // As contas responsáveis só podem ser Corrente ou Poupança
+        if (!(contaDoResponsavel instanceof ContaCorrente || contaDoResponsavel instanceof ContaPoupanca)) {
+            throw new IllegalArgumentException("A conta responsável deve ser do tipo Corrente ou Poupança.");
+        }
 
         // Busca os clientes titulares pelo CPF
         List<Cliente> titulares = request.titularCpfs().stream()
@@ -123,7 +123,7 @@ public class ContaService {
         contaJovem.setSaldo(BigDecimal.ZERO);
         contaJovem.setAgencia(request.agencia());
         contaJovem.setSenha(passwordEncoder.encode(request.senha()));
-        contaJovem.setResponsavelContaId(contaDoResponsavel); // <-- Corrected
+        contaJovem.setResponsavelContaId(contaDoResponsavel);
         contaJovem.setTitulares(new HashSet<>(titulares));
         contaJovem.setStatusConta(StatusConta.ATIVA);
         contaJovem.setDataAbertura(LocalDate.now());
@@ -237,7 +237,7 @@ public class ContaService {
         }
     }
 
-    private BigDecimal definirTaxaManutencao(SegmentoCliente segmento) {
+    public BigDecimal definirTaxaManutencao(SegmentoCliente segmento) {
         switch (segmento) {
             case CLASS:
                 return new BigDecimal("3.90");
@@ -250,7 +250,7 @@ public class ContaService {
         }
     }
 
-    private BigDecimal definirLimiteChequeEspecial(BigDecimal rendaMensal, Boolean possuiRestricoes) {
+    public BigDecimal definirLimiteChequeEspecial(BigDecimal rendaMensal, Boolean possuiRestricoes) {
         if (possuiRestricoes != null && possuiRestricoes) {
             return BigDecimal.ZERO;
         }
@@ -297,6 +297,7 @@ public class ContaService {
         Set<String> titularCpfs = conta.getTitulares().stream()
                 .map(Cliente::getCpf)
                 .collect(Collectors.toSet());
+
         return new ContaCorrenteResponse(
                 conta.getId(),
                 conta.getNumeroConta(),
@@ -305,7 +306,9 @@ public class ContaService {
                 conta.getLimiteChequeEspecial(),
                 titularCpfs,
                 conta.getStatusConta(),
-                getTipoConta(conta));
+                getTipoConta(conta),
+                conta.getSegmentoCliente()
+        );
     }
 
     // Tem a função de mapear os campos da entidade conta poupança para o seu respectivo DTO de resposta
@@ -339,7 +342,8 @@ public class ContaService {
                 conta.getResponsavelContaId().getId(),
                 titularCpfs,
                 conta.getStatusConta(),
-                getTipoConta(conta));
+                getTipoConta(conta),
+                conta.getSegmentoCliente());
     }
 
     // Tem a função de mapear os campos da entidade conta global para o seu respectivo DTO de resposta
@@ -356,23 +360,24 @@ public class ContaService {
                 conta.getCodigoSwift(),
                 titularCpfs,
                 conta.getStatusConta(),
-                getTipoConta(conta));
+                getTipoConta(conta),
+                conta.getSegmentoCliente());
     }
 
-    public BigDecimal consultarSaldo(String numeroConta){
+    public BigDecimal consultarSaldo(String numeroConta) {
         Conta conta = contaRepository.findByNumeroConta(numeroConta)
-                .orElseThrow(()-> new RecursoNaoEncontrado("Conta não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
         return conta.getSaldo();
     }
 
     @Transactional(readOnly = true)
     public List<Object> buscarContasPorCpf(String cpf) {
         List<Conta> contas = contaRepository.findByTitularCpf(cpf);
-        
+
         if (contas.isEmpty()) {
             throw new RecursoNaoEncontrado("Nenhuma conta encontrada para o CPF: " + cpf);
         }
-        
+
         return contas.stream()
                 .map(this::mapearContaParaResponse)
                 .collect(Collectors.toList());
@@ -383,7 +388,7 @@ public class ContaService {
     public boolean validarSenhaConta(Long contaId, String senha) {
         Conta conta = contaRepository.findById(contaId)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
-        
+
         return passwordEncoder.matches(senha, conta.getSenha());
     }
 
@@ -392,7 +397,7 @@ public class ContaService {
     public boolean validarSenhaContaPorNumero(String numeroConta, String senha) {
         Conta conta = contaRepository.findByNumeroConta(numeroConta)
                 .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
-        
+
         return passwordEncoder.matches(senha, conta.getSenha());
     }
 }

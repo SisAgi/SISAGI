@@ -1,5 +1,6 @@
 package com.agibank.sisagi.dto;
 
+import com.agibank.sisagi.model.enums.SegmentoCliente;
 import com.agibank.sisagi.model.enums.StatusConta;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ public record ContaGlobalResponse(
         String codigoSwift,
         Set<String> titularCpfs, // Alterado para CPF
         StatusConta statusConta,
-        String tipoConta
+        String tipoConta,
+        SegmentoCliente segmentoCliente
 ) {
 }

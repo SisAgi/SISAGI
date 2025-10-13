@@ -2,10 +2,7 @@ package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
 import com.agibank.sisagi.exception.RecursoNaoEncontrado;
-import com.agibank.sisagi.model.Cliente;
-import com.agibank.sisagi.model.Endereco;
-import com.agibank.sisagi.model.Gerente;
-import com.agibank.sisagi.model.Telefone;
+import com.agibank.sisagi.model.*;
 import com.agibank.sisagi.model.enums.SegmentoCliente;
 import com.agibank.sisagi.model.enums.UserRole;
 import com.agibank.sisagi.repository.ClienteRepository;
@@ -14,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -214,6 +212,35 @@ public class ClienteService {
                 clienteExistente.getEnderecos().add(novoEndereco);
             }
         }
+
+        // VERIFICAÇÃO E ATUALIZAÇÃO DO SEGMENTO DO CLIENTE
+        SegmentoCliente novoSegmento = contaService.definirSegmentoCliente(
+                clienteExistente.getRendaMensal(),
+                clienteExistente.getPatrimonioEstimado()
+        );
+
+        // Se o segmento atual for diferente do novo, atualiza tanto o cliente quanto suas contas
+        if (!clienteExistente.getSegmentoCliente().equals(novoSegmento)) {
+            clienteExistente.setSegmentoCliente(novoSegmento);
+
+            // Percorre todas as contas do cliente para atualizar o segmento em cada uma
+            clienteExistente.getContas().forEach(conta -> {
+                conta.setSegmentoCliente(novoSegmento);
+                // Recalcula e atualiza a taxa de manutenção
+                BigDecimal novaTaxaManutencao = contaService.definirTaxaManutencao(novoSegmento);
+                conta.setTaxaManutencao(novaTaxaManutencao);
+
+                // Recalcula e atualiza o limite de cheque especial apenas para ContaCorrente
+                if (conta instanceof ContaCorrente cc) {
+                    BigDecimal novoLimite = contaService.definirLimiteChequeEspecial(
+                            clienteExistente.getRendaMensal(),
+                            clienteExistente.getPossuiRestricoesBancarias()
+                    );
+                    cc.setLimiteChequeEspecial(novoLimite);
+                }
+            });
+        }
+
         Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
         return mapToClienteResponse(clienteAtualizado);
     }

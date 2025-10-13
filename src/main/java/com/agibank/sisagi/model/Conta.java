@@ -31,7 +31,7 @@ public abstract class Conta {
     @Column(name = "numero_conta", nullable = false, unique = true, length = 20) // Número da conta deve ser único, não nulo e com tamanho máximo de 20 caracteres
     private String numeroConta;
 
-    @Column(nullable = false, length = 60) // Senha deve ser não nula e com tamanho máximo de 60 caracteres (BCrypt)
+    @Column(nullable = false, length = 100) // Senha deve ser não nula e com tamanho máximo de 100 caracteres (BCrypt)
     private String senha;
 
     @Column(name = "agencia", nullable = false) // Agência deve ser não nula
@@ -43,6 +43,7 @@ public abstract class Conta {
     @Column(name = "data_abertura", nullable = false) // Data de abertura da conta
     private LocalDate dataAbertura;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "segmento_cliente", nullable = false) // Segmento que indica o padrão de benefícios do cliente
     private SegmentoCliente segmentoCliente;
 

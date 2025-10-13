@@ -1,5 +1,6 @@
 package com.agibank.sisagi.dto;
 
+import com.agibank.sisagi.model.enums.SegmentoCliente;
 import com.agibank.sisagi.model.enums.StatusConta;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ public record ContaCorrenteResponse(
         BigDecimal limiteChequeEspecial,
         Set<String> titularCpfs,
         StatusConta statusConta,
-        String tipoConta
+        String tipoConta,
+        SegmentoCliente segmentoCliente
 ) {
 }

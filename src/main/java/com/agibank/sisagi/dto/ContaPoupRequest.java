@@ -2,6 +2,7 @@ package com.agibank.sisagi.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public record ContaPoupRequest(
         List<String> titularCpfs,
 
         @NotNull(message = "A senha é um campo obrigatório")
+        @Pattern(regexp = "\\d{6}", message = "A senha deve conter exatamente 6 dígitos numéricos")
         String senha
 ) {
 }

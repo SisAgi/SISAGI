@@ -13,7 +13,7 @@ import lombok.Setter;
 public class Gerente extends Usuarios {
 
     //Atributos específicos de Gerente
-    @Column(nullable = false, length = 60) // Tamanho 60 para suportar BCrypt
+    @Column(nullable = false, length = 100) // Tamanho 60 para suportar BCrypt
     private String senha;
 
     @Column(nullable = false, unique = true)
