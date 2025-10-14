@@ -66,12 +66,21 @@ public class ContaController {
     }
 
     @PutMapping("/desativar/{numeroConta}")
-    public ResponseEntity<Object> desativarConta(@PathVariable String numeroConta) throws Exception {
-       Object conta = contaService.desativarConta(numeroConta);
-       if (conta == null){
-           throw new Exception();
-       }
-       return ResponseEntity.ok(conta);
+    public ResponseEntity<Object> desativarConta(
+            @PathVariable String numeroConta,
+            @Valid @RequestBody ValidarSenhaRequest request) throws Exception { // Add ValidarSenhaRequest to the method signature
+
+        // Autenticação da senha para encerramento da conta
+        if (!contaService.validarSenhaContaPorNumero(numeroConta, request.senha())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Senha incorreta.");
+        }
+
+        Object conta = contaService.desativarConta(numeroConta);
+        if (conta == null){
+            throw new Exception();
+        }
+        return ResponseEntity.ok(conta);
     }
 
     // Endpoint para buscar todas as contas de um cliente por CPF
