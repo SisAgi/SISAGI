@@ -76,14 +76,14 @@ public class TransacaoService {
         // Atualiza saldos após as operações
         contaRepository.save(contaOrigem);
         contaRepository.save(contaDestino);
-        contaOrigem.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarTransferenciaEnviada(contaDestino, titular, dto.valor()));
+        contaOrigem.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarTransferenciaEnviada(contaDestino, titular, dto.valor(), LocalDateTime.now()) );
         try{
             Thread.sleep(10000); // Pequena pausa para evitar problemas de concorrência no envio de emails
         }catch (InterruptedException e){
             Thread.currentThread().interrupt();
             throw e;
         }
-        contaDestino.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarTransferenciaRecebida(contaOrigem, titular, dto.valor()));
+        contaDestino.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarTransferenciaRecebida(contaOrigem, titular, dto.valor(), LocalDateTime.now()) );
 
         return toResponse(debito);
     }

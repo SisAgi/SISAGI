@@ -106,14 +106,14 @@ public class EmailService {
     }
 
     @Async
-    public void notificarTransferenciaEnviada(Conta contaDestino, Cliente clienteOrigem, BigDecimal valor){
+    public void notificarTransferenciaEnviada(Conta contaDestino, Cliente clienteOrigem, BigDecimal valor, LocalDateTime dataHora){
         final String subject = "Comprovante de Transferência Enviada!";
         try{
             Context context = new Context();
             context.setVariable("nome", clienteOrigem.getNomeCompleto());
             context.setVariable("valor", valor);
             context.setVariable("contaDestino", contaDestino.getNumeroConta());
-            context.setVariable("data", LocalDateTime.now());
+            context.setVariable("dataHora", dataHora);
 
             String htmlBody = templateEngine.process("emails/transferencia-enviada", context);
 
@@ -125,14 +125,14 @@ public class EmailService {
     }
 
     @Async
-    public void notificarTransferenciaRecebida(Conta contaOrigem, Cliente clienteDestino, BigDecimal valor){
+    public void notificarTransferenciaRecebida(Conta contaOrigem, Cliente clienteDestino, BigDecimal valor, LocalDateTime dataHora){
         final String subject = "Transação recebida!";
         try{
             Context context = new Context();
             context.setVariable("nome", clienteDestino.getNomeCompleto());
             context.setVariable("valor", valor);
             context.setVariable("contaOrigem", contaOrigem.getNumeroConta());
-            context.setVariable("data", LocalDateTime.now());
+            context.setVariable("dataHora", dataHora);
 
             String htmlBody = templateEngine.process("emails/transferencia-recebida", context);
 

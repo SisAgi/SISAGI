@@ -21,7 +21,10 @@ public interface ContaRepository extends JpaRepository<Conta, Long> {
     @Query("SELECT c FROM Conta c JOIN c.titulares t WHERE t.cpf = :cpf")
     List<Conta> findByTitularCpf(@Param("cpf") String cpf);
 
-    Long countByDataAberturaBetween(LocalDate start, LocalDate end);
-    @Query("SELECT new com.agibank.sisagi.dashboard.dto.ContasPorTipoResponse(c.tipoConta, COUNT(c)) FROM Conta c GROUP BY c.tipoConta")
+    @Query("SELECT new com.agibank.sisagi.dto.dashboard.ContasPorTipoResponse(c.tipoConta, COUNT(c)) " +
+            "FROM Conta c " +
+            "GROUP BY TYPE(c)")
     List<ContasPorTipoResponse> countContasByTipo();
+
+    Long countByDataAberturaBetween(LocalDate start, LocalDate end);
 }

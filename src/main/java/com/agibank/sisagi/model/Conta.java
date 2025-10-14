@@ -53,6 +53,9 @@ public abstract class Conta {
     @Column(name = "status", nullable = false, length = 50) // Status da conta deve indicar se a mesma está "ATIVA" ou "DESATIVADA"
     private StatusConta statusConta;
 
+    @Column(name = "tipo_conta", insertable = false, updatable = false)
+    private String tipoConta;
+
     @ManyToMany(fetch = FetchType.LAZY) // Relação muitos para muitos com Cliente
     @JoinTable(
             name = "conta_titulares",

@@ -14,12 +14,12 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     Optional<Cliente> findByEmail(String email);
 
-    Optional<Cliente> findById(Long id);
-
     Optional<Cliente> findByCpf(String cpf);
 
-    Optional<Cliente> findByGerenteId(Long gerenteId);
+    List<Cliente> findByGerenteId(Long gerenteId);
 
-    @Query("SELECT new com.agibank.sisagi.dashboard.dto.ContasPorGerenteResponse(c.gerente.nome, COUNT(c)) FROM Cliente c WHERE c.gerente IS NOT NULL GROUP BY c.gerente.nome ORDER BY COUNT(c) DESC")
+    @Query("SELECT new com.agibank.sisagi.dto.dashboard.ContasPorGerenteResponse(c.gerente.nomeCompleto, COUNT(c)) " +
+            "FROM Cliente c WHERE c.gerente IS NOT NULL " +
+            "GROUP BY c.gerente.nomeCompleto ORDER BY COUNT(c) DESC")
     List<ContasPorGerenteResponse> countClientesByGerente();
 }

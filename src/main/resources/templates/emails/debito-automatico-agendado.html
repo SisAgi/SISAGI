@@ -23,8 +23,7 @@
         <p>Olá, <strong th:text="${nome}">Cliente</strong>,</p>
         <p>Seu novo débito automático foi agendado. Confira os detalhes:</p>
         <div class="details-box">
-            <p><strong>Valor:</strong> <strong th:text="${#numbers.formatCurrency(valor)}">R$ 0,00</strong></p>
-            <p><strong>Conta de Destino:</strong> <span th:text="${contaDestino}">0000-0</span></p>
+            <p><strong>Conta Destino:</strong> <span th:text="${contaDestino}">0000-0</span></p>
             <p><strong>Frequência:</strong> <span th:text="${frequencia}">Mensal</span></p>
             <p><strong>Dia da Cobrança:</strong> Todo dia <span th:text="${diaDoMes}">00</span></p>
         </div>
