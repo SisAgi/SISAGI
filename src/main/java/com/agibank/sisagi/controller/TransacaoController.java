@@ -1,6 +1,7 @@
 package com.agibank.sisagi.controller;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.service.ContaService;
 import com.agibank.sisagi.service.TransacaoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +15,20 @@ import java.util.List;
 @RequestMapping("/api/v1/transacoes")
 @RequiredArgsConstructor
 public class TransacaoController {
-    
+
     private final TransacaoService transacaoService;
+    private final ContaService contaService;
 
     // Endpoint para realizar uma transferência entre contas
     @PostMapping("/transferencia")
     public ResponseEntity<TransacaoResponse> realizarTransferencia(
             @Valid @RequestBody TransferenciaRequest request,
             @RequestParam Long gerenteExecutorId) {
+
+        if (!contaService.validarSenhaConta(request.contaOrigemId(), request.senha())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
         TransacaoResponse response = transacaoService.realizarTransferencia(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -40,6 +47,11 @@ public class TransacaoController {
     public ResponseEntity<TransacaoResponse> realizarSaque(
             @Valid @RequestBody SaqueRequest request,
             @RequestParam Long gerenteExecutorId) {
+
+        if (!contaService.validarSenhaConta(request.contaId(), request.senha())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
         TransacaoResponse response = transacaoService.realizarSaque(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

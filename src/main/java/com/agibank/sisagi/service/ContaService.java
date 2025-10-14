@@ -204,15 +204,6 @@ public class ContaService {
         return mapearContaParaResponse(conta);
     }
 
-    @Transactional
-    public ContaUpdateRequest atualizarConta(Long contaId, ContaUpdateRequest request) {
-        Conta conta = contaRepository.findById(contaId)
-                .orElseThrow(() -> new RecursoNaoEncontrado("Conta não encontrada"));
-        conta.setAgencia(request.agencia());
-        Conta contaAtualizada = contaRepository.save(conta);
-        return new ContaUpdateRequest(contaAtualizada.getAgencia(), contaAtualizada.getNumeroConta(), request.cpf());
-    }
-
     private String gerarNumeroContaUnico() {
         String numeroContaGerado;
         do {
