@@ -1,0 +1,21 @@
+package com.agibank.sisagi.dto;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+import java.math.BigDecimal;
+
+public record SaqueDolarParaRealRequest(
+        @NotNull(message = "O ID da conta não pode ser nulo")
+        Long contaId,
+
+        @NotNull(message = "O valor do saque não pode ser nulo")
+        @Positive(message = "O valor do saque deve ser positivo")
+        BigDecimal valorReais,
+
+        @NotNull(message = "A senha não pode ser nula")
+        String senha,
+
+        String motivoMovimentacao
+) {
+}

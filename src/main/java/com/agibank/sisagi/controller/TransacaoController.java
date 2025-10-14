@@ -72,21 +72,26 @@ public class TransacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Endpoint para realizar um saque internacional (em dólares)
-    @PostMapping("/saque-internacional")
-    public ResponseEntity<TransacaoResponse> realizarSaqueInternacional(
-            @Valid @RequestBody SaqueInternacionalRequest request,
+    // Endpoint para depositar em reais e converter para dólares
+    @PostMapping("/deposito-real-para-dolar")
+    public ResponseEntity<ConversaoMoedaResponse> depositarRealEConverterParaDolar(
+            @Valid @RequestBody ConversaoMoedaRequest request,
             @RequestParam Long gerenteExecutorId) {
-        TransacaoResponse response = transacaoService.realizarSaqueInternacional(request, gerenteExecutorId);
+        ConversaoMoedaResponse response = transacaoService.depositarRealEConverterParaDolar(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Endpoint para realizar um depósito internacional (em dólares)
-    @PostMapping("/deposito-internacional")
-    public ResponseEntity<TransacaoResponse> realizarDepositoInternacional(
-            @Valid @RequestBody DepositoInternacionalRequest request,
+    // Endpoint para sacar em reais debitando da conta em dólares
+    @PostMapping("/saque-dolar-para-real")
+    public ResponseEntity<TransacaoResponse> sacarDolarEConverterParaReal(
+            @Valid @RequestBody SaqueDolarParaRealRequest request,
             @RequestParam Long gerenteExecutorId) {
-        TransacaoResponse response = transacaoService.realizarDepositoInternacional(request, gerenteExecutorId);
+
+        if (!contaService.validarSenhaConta(request.contaId(), request.senha())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        TransacaoResponse response = transacaoService.sacarDolarEConverterParaReal(request, gerenteExecutorId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
