@@ -11,7 +11,9 @@ import com.agibank.sisagi.repository.GerenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class ClienteService {
     private final EmailService emailService;
 
     @Transactional
-    public ClienteResponse criar(ClienteRequest request) {
+    public ClienteResponse criar(ClienteRequest request, MultipartFile arquivo) throws IOException {
         if (clienteRepository.findByEmail(request.email()).isPresent()) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
@@ -51,6 +53,15 @@ public class ClienteService {
         cliente.setEstadoCivil(request.estadoCivil());
         cliente.setPossuiRestricoesBancarias(request.possuiRestricoesBancarias());
         cliente.setEPpe(request.ePpe());
+
+        // Salvando documento
+        if(!arquivo.isEmpty() && arquivo != null){
+            Documento documento = new Documento();
+            documento.setNomeArquivo(arquivo.getOriginalFilename());
+            documento.setTipoArquivo(arquivo.getContentType());
+            documento.setDados(arquivo.getBytes());
+            cliente.setDocumentoRg(documento);
+        }
 
         // Mapeamento dos campos opcionais
         cliente.setCargo(request.cargo());
@@ -257,8 +268,31 @@ public class ClienteService {
         clienteRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public DocumentoDownloadDTO buscarDocumentoPorClienteId(Long id){
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(()-> new RecursoNaoEncontrado("Cliente não encontrado"));
+        Documento documento = cliente.getDocumentoRg();
+        if (documento == null) {
+            // Você pode lançar uma exceção específica ou retornar null
+            throw new RecursoNaoEncontrado("Documento não encontrado para o cliente ID: " + cliente.getId());
+        }
+        return new DocumentoDownloadDTO(documento.getDados(), documento.getTipoArquivo(), documento.getNomeArquivo());
+    }
+
+
     // Faz o trabalho de mapear os campos da entidade para o DTO de resposta
     private ClienteResponse mapToClienteResponse(Cliente cliente) {
+        DocumentoResponse documentoResponse = null;
+        Documento documento = cliente.getDocumentoRg();
+        if (documento != null) {
+            // Mapeia Documento para DocumentoResponse (usando o DTO sugerido)
+            documentoResponse = new DocumentoResponse(
+                    documento.getNomeArquivo(),
+                    documento.getTipoArquivo()
+                    // Se DocumentoResponse tiver mais campos (como ID ou tamanho), inclua aqui
+            );
+        }
         return new ClienteResponse(
                 cliente.getId(),
                 cliente.getNomeCompleto(),
@@ -299,7 +333,8 @@ public class ClienteService {
                         cliente.getTelefone().getDdd(),
                         cliente.getTelefone().getNumero(),
                         cliente.getTelefone().getTipoTelefone()
-                )
+                ),
+                documentoResponse
         );
     }
 

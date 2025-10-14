@@ -90,4 +90,8 @@ public class Cliente extends Usuarios {
     // Relacionamento com Conta
     @ManyToMany(mappedBy = "titulares")
     private Set<Conta> contas = new HashSet<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "documento_id")
+    private Documento documentoRg;
 }
