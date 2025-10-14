@@ -23,7 +23,7 @@ public class TransacaoController {
     @PostMapping("/transferencia")
     public ResponseEntity<TransacaoResponse> realizarTransferencia(
             @Valid @RequestBody TransferenciaRequest request,
-            @RequestParam Long gerenteExecutorId) {
+            @RequestParam Long gerenteExecutorId) throws InterruptedException {
 
         if (!contaService.validarSenhaConta(request.contaOrigemId(), request.senha())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);

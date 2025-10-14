@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Comprovante de Transferência</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f7; }
+        .email-container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { background-color: #f8f9fa; border-bottom: 1px solid #e0e0e0; padding: 20px 30px; text-align: center; /* Centralizado */ }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; color: #007bff; /* Azul Secundário */ }
+        .content { padding: 30px 40px; }
+        .content h2 { color: #28a745; /* Verde como detalhe de sucesso */ font-size: 22px; }
+        .content p { color: #555; line-height: 1.6; font-size: 16px; }
+        .details-box { background-color: #f9f9f9; border: 1px solid #eee; padding: 20px; margin-top: 20px; border-radius: 8px; }
+        .details-box p { margin: 10px 0; }
+        .details-box strong { color: #333; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #e0e0e0; }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1>Transfêrencia Realizada.</h1>
+    </div>
+    <div class="content">
+        <h2>Comprovante de Transferência</h2>
+        <p>Olá, <strong th:text="${nome}">Cliente</strong>,</p>
+        <p>Sua transferência foi enviada com sucesso. Confira abaixo os detalhes da operação.</p>
+        <div class="details-box">
+            <p><strong>Valor Enviado:</strong> <strong th:text="${#numbers.formatCurrency(valor)}">R$ 0,00</strong></p>
+            <p><strong>Conta de Destino:</strong> <span th:text="${contaDestino}">0000-0</span></p>
+            <p><strong>Data e Hora:</strong> <span th:text="${#temporals.format(dataHora, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Para sua segurança, nunca compartilhe sua senha. &copy; 2025 SysAgi.</p>
+    </div>
+</div>
+</body>
+</html>

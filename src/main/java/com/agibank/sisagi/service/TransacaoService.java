@@ -1,6 +1,7 @@
 package com.agibank.sisagi.service;
 
 import com.agibank.sisagi.dto.*;
+import com.agibank.sisagi.email.EmailService;
 import com.agibank.sisagi.exception.ContaInvalida;
 import com.agibank.sisagi.exception.SaldoInsuficienteException;
 import com.agibank.sisagi.exception.SaldoInvalido;
@@ -30,10 +31,11 @@ public class TransacaoService {
     private final ContaRepository contaRepository;
     private final GerenteRepository gerenteRepository;
     private final ExchangeRateService exchangeRateService;
+    private final EmailService emailService;
 
     // Realiza uma transferência entre contas
     @Transactional
-    public TransacaoResponse realizarTransferencia(TransferenciaRequest dto, Long gerenteExecutorId) {
+    public TransacaoResponse realizarTransferencia(TransferenciaRequest dto, Long gerenteExecutorId) throws InterruptedException {
         // Validação básica
         if (dto.contaOrigemId() == null || dto.contaDestinoId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transferências requerem Conta de Origem e Conta de Destino.");
@@ -73,6 +75,14 @@ public class TransacaoService {
         // Atualiza saldos após as operações
         contaRepository.save(contaOrigem);
         contaRepository.save(contaDestino);
+        contaOrigem.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarTransferenciaEnviada(contaDestino, titular, dto.valor()));
+        try{
+            Thread.sleep(10000); // Pequena pausa para evitar problemas de concorrência no envio de emails
+        }catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+            throw e;
+        }
+        contaDestino.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarTransferenciaRecebida(contaOrigem, titular, dto.valor()));
 
         return toResponse(debito);
     }
@@ -101,7 +111,7 @@ public class TransacaoService {
         transacaoRepository.save(transacao);
 
         contaRepository.save(conta);
-
+        conta.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarDeposito(titular, dto.valor(), LocalDateTime.now()));
         return toResponse(transacao);
     }
 
@@ -129,7 +139,7 @@ public class TransacaoService {
         transacaoRepository.save(transacao);
 
         contaRepository.save(conta);
-
+        conta.getTitulares().stream().findFirst().ifPresent(titular -> emailService.notificarSaque(titular, dto.valor(), LocalDateTime.now()));
         return toResponse(transacao);
     }
 

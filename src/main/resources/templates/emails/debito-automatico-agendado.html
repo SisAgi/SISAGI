@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Débito Automático Agendado</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f7; }
+        .email-container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { background-color: #007bff; color: #ffffff; padding: 25px 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+        .content { padding: 30px 40px; }
+        .content h2 { color: #333; }
+        .content p { color: #555; line-height: 1.6; }
+        .details-box { background-color: #f9f9f9; border: 1px solid #eee; padding: 20px; margin-top: 20px; border-radius: 8px; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header"><h1>Débito Automático Agendado</h1></div>
+    <div class="content">
+        <h2>Débito Automático Agendado com Sucesso</h2>
+        <p>Olá, <strong th:text="${nome}">Cliente</strong>,</p>
+        <p>Seu novo débito automático foi agendado. Confira os detalhes:</p>
+        <div class="details-box">
+            <p><strong>Valor:</strong> <strong th:text="${#numbers.formatCurrency(valor)}">R$ 0,00</strong></p>
+            <p><strong>Conta de Destino:</strong> <span th:text="${contaDestino}">0000-0</span></p>
+            <p><strong>Frequência:</strong> <span th:text="${frequencia}">Mensal</span></p>
+            <p><strong>Dia da Cobrança:</strong> Todo dia <span th:text="${diaDoMes}">00</span></p>
+        </div>
+        <p>Para gerenciar seus agendamentos, acesse a área de débitos automáticos no nosso aplicativo.</p>
+    </div>
+    <div class="footer"><p>&copy; 2025 SysAgi</p></div>
+</div>
+</body>
+</html>
