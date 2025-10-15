@@ -14,7 +14,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000") // domínio do front
+                        .allowedOrigins(
+                                "http://localhost:3000",                 // ambiente local (React dev)
+                                "http://localhost:5173",                 // caso use Vite
+                                "https://agifront-ii.onrender.com"       // frontend em produção
+                        )
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
