@@ -73,7 +73,7 @@ public class TransacaoController {
     }
 
     // Endpoint para depositar em reais e converter para dólares
-    @PostMapping("/deposito-real-para-dolar")
+    @PostMapping("/deposito-internacional")
     public ResponseEntity<ConversaoMoedaResponse> depositarRealEConverterParaDolar(
             @Valid @RequestBody ConversaoMoedaRequest request,
             @RequestParam Long gerenteExecutorId) {
@@ -82,7 +82,7 @@ public class TransacaoController {
     }
 
     // Endpoint para sacar em reais debitando da conta em dólares
-    @PostMapping("/saque-dolar-para-real")
+    @PostMapping("/saque-internacional")
     public ResponseEntity<TransacaoResponse> sacarDolarEConverterParaReal(
             @Valid @RequestBody SaqueDolarParaRealRequest request,
             @RequestParam Long gerenteExecutorId) {

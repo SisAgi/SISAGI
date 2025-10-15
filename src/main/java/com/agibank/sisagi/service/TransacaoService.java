@@ -315,7 +315,7 @@ public class TransacaoService {
         // Cria e salva a transação
         Transacao transacao = new Transacao();
         transacao.setConta(contaGlobal);
-        transacao.setTipoTransacao(TipoTransacao.DEPOSITO_E_CONVERSAO);
+        transacao.setTipoTransacao(TipoTransacao.DEPOSITO_INTERNACIONAL);
         transacao.setValor(dto.valorReais()); // O valor é positivo para representar o depósito inicial
         transacao.setIdGerenteExecutor(gerente);
         transacao.setMotivoMovimentacao(dto.motivoMovimentacao());
@@ -368,15 +368,12 @@ public class TransacaoService {
         contaGlobal.setSaldoDolar(saldoDolar.subtract(valorDolaresParaDebitar));
         contaGlobal.setCotacaoAtual(cotacao);
 
-        // Credita o valor em reais
-        contaGlobal.creditar(dto.valorReais());
-
         String nsuDaOperacao = UUID.randomUUID().toString().replace("-", "").toUpperCase();
 
         // Cria e salva a transação
         Transacao transacao = new Transacao();
         transacao.setConta(contaGlobal);
-        transacao.setTipoTransacao(TipoTransacao.SAQUE_E_CONVERSAO);
+        transacao.setTipoTransacao(TipoTransacao.SAQUE_INTERNACIONAL);
         transacao.setValor(dto.valorReais().negate()); // Negativo para indicar o saque em reais
         transacao.setIdGerenteExecutor(gerente);
         transacao.setMotivoMovimentacao(dto.motivoMovimentacao());

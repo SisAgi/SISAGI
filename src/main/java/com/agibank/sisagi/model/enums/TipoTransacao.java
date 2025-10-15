@@ -14,8 +14,8 @@ public enum TipoTransacao {
     TRANSFERENCIA_ENVIADA("Transferência enviada"),
     TRANSFERENCIA_RECEBIDA("Transferência recebida"),
     CONVERSAO_MOEDA("Conversão de Moeda"),
-    DEPOSITO_E_CONVERSAO("Depósito em Real e Conversão para Dólar"),
-    SAQUE_E_CONVERSAO("Saque em Real com Débito em Dólar");
+    DEPOSITO_INTERNACIONAL("Depósito em Real e Conversão para Dólar"),
+    SAQUE_INTERNACIONAL("Saque em Real com Débito em Dólar");
 
     // Descrição legível do tipo de transação
     private final String descricao;
