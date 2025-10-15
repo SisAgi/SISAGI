@@ -301,7 +301,8 @@ public class ContaService {
                 titularCpfs,
                 conta.getStatusConta(),
                 getTipoConta(conta),
-                conta.getSegmentoCliente()
+                conta.getSegmentoCliente(),
+                conta.getTaxaManutencao()
         );
     }
 
@@ -320,7 +321,8 @@ public class ContaService {
                 getTipoConta(conta),
                 titularCpfs,
                 conta.getStatusConta(),
-                conta.getSegmentoCliente());
+                conta.getSegmentoCliente(),
+                conta.getTaxaManutencao());
     }
 
     // Tem a função de mapear os campos da entidade conta jovem para o seu respectivo DTO de resposta
@@ -337,7 +339,8 @@ public class ContaService {
                 titularCpfs,
                 conta.getStatusConta(),
                 getTipoConta(conta),
-                conta.getSegmentoCliente());
+                conta.getSegmentoCliente(),
+                conta.getTaxaManutencao());
     }
 
     // Tem a função de mapear os campos da entidade conta global para o seu respectivo DTO de resposta
@@ -355,7 +358,8 @@ public class ContaService {
                 titularCpfs,
                 conta.getStatusConta(),
                 getTipoConta(conta),
-                conta.getSegmentoCliente());
+                conta.getSegmentoCliente(),
+                conta.getTaxaManutencao());
     }
 
     public BigDecimal consultarSaldo(String numeroConta) {

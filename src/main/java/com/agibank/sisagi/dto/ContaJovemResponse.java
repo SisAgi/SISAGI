@@ -15,6 +15,7 @@ public record ContaJovemResponse(
         Set<String> titularCpfs, // Alterado para CPF
         StatusConta statusConta,
         String tipoConta,
-        SegmentoCliente segmentoCliente
+        SegmentoCliente segmentoCliente,
+        BigDecimal taxaManutencao
 ) {
 }

@@ -16,6 +16,7 @@ public record ContaGlobalResponse(
         Set<String> titularCpfs, // Alterado para CPF
         StatusConta statusConta,
         String tipoConta,
-        SegmentoCliente segmentoCliente
+        SegmentoCliente segmentoCliente,
+        BigDecimal taxaManutencao
 ) {
 }
