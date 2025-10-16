@@ -16,6 +16,7 @@ public record ContaPoupResponse(
         String tipoConta,
         Set<String> titularCpfs,
         StatusConta statusConta,
-        SegmentoCliente segmentoCliente
+        SegmentoCliente segmentoCliente,
+        BigDecimal taxaManutencao
 ) {
 }

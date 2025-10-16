@@ -15,6 +15,7 @@ public record ContaCorrenteResponse(
         Set<String> titularCpfs,
         StatusConta statusConta,
         String tipoConta,
-        SegmentoCliente segmentoCliente
+        SegmentoCliente segmentoCliente,
+        BigDecimal taxaManutencao
 ) {
 }
